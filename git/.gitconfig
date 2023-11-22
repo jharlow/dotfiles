@@ -8,6 +8,7 @@
 	new = green bold
 
 [core]
+	ignorecase = false
 	editor = vim
 	pager = delta
 	autocrlf = false

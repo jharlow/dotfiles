@@ -34,9 +34,7 @@ brew install lazygit
 # Node.js, fallback version
 brew install node
 npm config set loglevel warn
-
-# n, Node.js version manager
-brew install n
+brew install nvm
 
 # Npm packages
 npm install -g npm-upgrade
