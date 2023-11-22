@@ -48,6 +48,7 @@ $(brew --prefix)/opt/fzf/install
 # IDE
 brew install neovim
 brew install tmux
+brew install zellij
 
 # CLI helpers
 brew install bat
