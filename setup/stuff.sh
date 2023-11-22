@@ -29,6 +29,7 @@ brew install git
 brew install gh
 brew install git-friendly/git-friendly/git-friendly
 brew install git-delta
+brew install lazygit
 
 # Node.js, fallback version
 brew install node
