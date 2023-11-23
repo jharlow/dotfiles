@@ -22,3 +22,4 @@ brew install --cask rectangle
 brew install --cask rocket-typist
 brew install --cask screen-studio
 brew install --cask visual-studio-code
+brew install --cask raycast
