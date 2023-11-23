@@ -34,7 +34,7 @@ brew install lazygit
 # Node.js, fallback version
 brew install node
 npm config set loglevel warn
-brew install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 
 # Npm packages
 npm install -g npm-upgrade
