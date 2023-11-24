@@ -19,6 +19,7 @@ alias -- +x="chmod +x"
 alias o="open"
 alias oo="open ."
 alias n="$EDITOR"
+alias lg="lazygit"
 alias cc="code ."
 
 # trash: https://github.com/sindresorhus/macos-trash
