@@ -1,4 +1,13 @@
+## Setup apps & cli
+
 ```sh
-brew install stow
+bash ~/dotfiles/setup/apps
+bash ~/dotfiles/setup/cli
+```
+
+## Link dotfiles
+
+```sh
+git submodule update --recursive --remote
 make
 ```

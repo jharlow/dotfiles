@@ -23,6 +23,7 @@ xcodebuild -license
 
 # Update Homebrew and already installed packages
 brew update
+brew install stow
 
 # Git
 brew install git
