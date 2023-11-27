@@ -22,9 +22,6 @@ alias n="$EDITOR"
 alias lg="lazygit"
 alias cc="code ."
 
-# trash: https://github.com/sindresorhus/macos-trash
-command -v trash >/dev/null 2>&1 && alias rm="trash"
-
 # Download file and save it with filename of remote file
 alias get="curl -O -L"
 

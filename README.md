@@ -11,3 +11,12 @@ bash ~/dotfiles/setup/cli
 git submodule update --recursive --remote
 make
 ```
+
+### TODO
+
+<details>
+<summary><b>Click to review TODO history</b></summary>
+
+- [ ] Submodule `tpm` packages
+
+</details>
