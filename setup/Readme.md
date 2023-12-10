@@ -1,9 +1,5 @@
 ## Scripts
 
-### osx
-
-Sane OSX defaults. Based on [~/.osx](https://github.com/mathiasbynens/dotfiles/blob/master/.macos) by @mathiasbynens.
-
 ### stuff
 
 Installs Homebrew, Git, [git-friendly](https://github.com/jamiew/git-friendly), Node.js, etc.
@@ -78,6 +74,6 @@ Go to iTerm2 preferences → Profiles → Advanced → Semantic History. Choose 
 
 Go to iTerm2 preferences → Profiles → Advanced → Triggers. Click _Edit_.
 
-| Description | RegExp | Action | Color |
-| --- | --- | --- | --- |
+| Description                   | RegExp                   | Action         | Color          |
+| ----------------------------- | ------------------------ | -------------- | -------------- |
 | Highlight Git merge conflicts | `CONFLICT \([^)]+\)\:.*` | Highlight Text | Text: `f2ac00` |
