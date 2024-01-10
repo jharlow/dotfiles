@@ -160,12 +160,12 @@ If you are an iTerm2 user, third column describes the keybinding of similar "act
         <td>^⌘↓</td>
     </tr>
     <tr>
-        <td><code>&lt;prefix&gt; &gt;</code></td>
+        <td><code>&lt;prefix&gt; C-]</code></td>
         <td>Move to next window</td>
         <td>⌘⇧]</td>
     </tr>
     <tr>
-        <td><code>&lt;prefix&gt; &lt;</code></td>
+        <td><code>&lt;prefix&gt; C-[</code></td>
         <td>Move to previous window</td>
         <td>⌘⇧[</td>
     </tr>
