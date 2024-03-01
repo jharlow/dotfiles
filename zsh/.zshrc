@@ -98,13 +98,16 @@ export NVM_DIR="$HOME/.nvm"
 export GITHUB_TOKEN=$(eval "op read 'op://Personal/GitHub - Personal Access Token - Bench/token'")
 
 function git-changes {
-  current_branch=$(git branch --show-current)
-  branch_name="$1"
-  if [ -z "$branch_name" ]; then
-    git log --pretty=format:%B --first-parent --no-merges "$current_branch" | sed '/^[^-]/d;/^$/d' 
-    return 1
-  fi
-  git log --pretty=format:%B --first-parent --no-merges "$branch_name" | sed '/^[^-]/d;/^$/d'
+  base_branch=$(gh pr view --json baseRefName --jq '.baseRefName' | tr -d '"')
+  current_branch=$(git rev-parse --abbrev-ref HEAD)
+  revision_range="$base_branch..$current_branch"
+  git log \
+    --first-parent \
+    --no-merges \
+    --format=%B \
+    $revision_range \
+    | sed '/^[^-]/d;/^$/d' \
+    | tail -r
 }
 
 # pnpm
