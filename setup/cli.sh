@@ -57,6 +57,7 @@ curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | 
 brew install lsd
 
 # Everything else
+brew install postgresql
 brew install 1password-cli
 brew install macos-trash
 brew install neofetch

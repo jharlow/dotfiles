@@ -96,3 +96,21 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 export GITHUB_TOKEN=$(eval "op read 'op://Personal/GitHub - Personal Access Token - Bench/token'")
+
+function git-changes {
+  current_branch=$(git branch --show-current)
+  branch_name="$1"
+  if [ -z "$branch_name" ]; then
+    git log --pretty=format:%B --first-parent --no-merges "$current_branch" | sed '/^[^-]/d;/^$/d' 
+    return 1
+  fi
+  git log --pretty=format:%B --first-parent --no-merges "$branch_name" | sed '/^[^-]/d;/^$/d'
+}
+
+# pnpm
+export PNPM_HOME="/Users/johnharlow/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
