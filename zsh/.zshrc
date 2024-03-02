@@ -117,3 +117,9 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+export GLOW_PATH="/Users/johnharlow/.local/bin/"
+case ":$PATH:" in
+  *":$GLOW_PATH:"*) ;;
+  *) export PATH="$PATH:$GLOW_PATH" ;;
+esac
