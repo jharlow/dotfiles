@@ -90,12 +90,9 @@ zplug load
 export STARSHIP_CONFIG=~/.starship.toml
 eval "$(starship init zsh)"
 
-
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-export GITHUB_TOKEN=$(eval "op read 'op://Personal/GitHub - Personal Access Token - Bench/token'")
 
 # pnpm
 export PNPM_HOME="/Users/johnharlow/Library/pnpm"
@@ -110,3 +107,32 @@ case ":$PATH:" in
   *":$GLOW_PATH:"*) ;;
   *) export PATH="$PATH:$GLOW_PATH" ;;
 esac
+
+function legacy-stack-update() {
+  echo "Updating legacy-runtime..."
+  cd ${BENCH_SOURCE_DIR:-~/benchLabs}/bench-backend/src/apps/legacy-runtime
+  git pull
+  if [ $? -ne 0 ]; then
+    echo "${RED}ERROR!${NC} Could not update legacy-runtime successfully, please check location and repository state"
+    return 1
+  fi
+  echo "Running update script... "
+  ansible-playbook -i inventory.yaml update.yaml
+  if [ $? -ne 0 ]; then
+    echo "${RED}ERROR!${NC} Please remediate errors in the output above and re-run the command"
+    return 1
+  else
+    echo "${GREEN}SUCCESS!${NC} Please give a few minutes for Bench software stack to start back up!"
+  fi
+}
+
+function go-cloud() {
+  AWS_SSO_OK=$(aws sts get-caller-identity | grep 'Account')
+
+  if [[ -z ${AWS_SSO_OK} ]] ; then
+    aws sso login
+  fi
+
+  cd ${BENCH_SOURCE_DIR:-~/benchLabs}/bench-backend/src/apps/legacy-runtime
+  yawsso -d
+}
