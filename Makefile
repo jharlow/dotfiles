@@ -6,6 +6,8 @@ stow:
 	@stow -t ~ tmux zsh git
 	@stow -t ~/.config/nvim nvim
 	@stow -t ~/.config/git gitconfig
+	@source ~/.zshenv
+	@source ~/.zshrc
 
 .PHONY: unstow
 unstow:
