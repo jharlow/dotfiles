@@ -66,4 +66,3 @@ function git-changes-long {
 	  $revision_range | 
 	sed -E 's/[A-Z0-9]{2,4}-[0-9]{1,6}:/####/g'
 }
-
