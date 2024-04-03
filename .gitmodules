@@ -2,6 +2,10 @@
 	path = nvim
 	url = https://github.com/jharlow/nvim
 
+[submodule "tpm"]
+	path = tmux/.tmux/plugins/tpm
+	url = https://github.com/tmux-plugins/tpm
+
 [submodule "tmux"]
 	path = tmux/.tmux/plugins/tmux
 	url = https://github.com/catppuccin/tmux
@@ -9,3 +13,27 @@
 [submodule "tmux-copycat"]
 	path = tmux/.tmux/plugins/tmux-copycat
 	url =	 https://github.com/tmux-plugins/tmux-copycat
+
+[submodule "tmux-online-status"]
+	path = tmux/.tmux/plugins/tmux-online-status
+	url = https://github.com/tmux-plugins/tmux-online-status
+
+[submodule "tmux-open"]
+	path = tmux/.tmux/plugins/tmux-open
+	url = https://github.com/tmux-plugins/tmux-open
+
+[submodule "tmux-plugin-sysstat"]
+	path = tmux/.tmux/plugins/tmux-plugin-sysstat
+	url = https://github.com/samoshkin/tmux-plugin-sysstat
+
+[submodule "tmux-prefix-highlight"]
+	path = tmux/.tmux/plugins/tmux-prefix-highlight
+	url = https://github.com/tmux-plugins/tmux-prefix-highlight
+
+[submodule "tmux-sidebar"]
+	path = tmux/.tmux/plugins/tmux-sidebar
+	url = https://github.com/tmux-plugins/tmux-sidebar
+
+[submodule "vim-tmux-navigator"]
+	path = tmux/.tmux/plugins/vim-tmux-navigator
+	url = https://github.com/christoomey/vim-tmux-navigator
