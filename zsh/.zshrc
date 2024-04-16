@@ -108,31 +108,43 @@ case ":$PATH:" in
   *) export PATH="$PATH:$GLOW_PATH" ;;
 esac
 
+
+### BENCH STUFF
+
 function legacy-stack-update() {
-  echo "Updating legacy-runtime..."
-  cd ${BENCH_SOURCE_DIR:-~/benchLabs}/bench-backend/src/apps/legacy-runtime
-  git pull
-  if [ $? -ne 0 ]; then
-    echo "${RED}ERROR!${NC} Could not update legacy-runtime successfully, please check location and repository state"
-    return 1
-  fi
-  echo "Running update script... "
-  ansible-playbook -i inventory.yaml update.yaml
-  if [ $? -ne 0 ]; then
-    echo "${RED}ERROR!${NC} Please remediate errors in the output above and re-run the command"
-    return 1
-  else
-    echo "${GREEN}SUCCESS!${NC} Please give a few minutes for Bench software stack to start back up!"
-  fi
+echo "Updating legacy-runtime..."
+cd ${BENCH_SOURCE_DIR:-~/benchLabs}/bench-backend/src/apps/legacy-runtime
+git pull
+if [ $? -ne 0 ]; then
+  echo "${RED}ERROR!${NC} Could not update legacy-runtime successfully, please check location and repository state"
+  return 1
+fi
+echo "Running update script... "
+ansible-playbook -i inventory.yaml update.yaml
+if [ $? -ne 0 ]; then
+  echo "${RED}ERROR!${NC} Please remediate errors in the output above and re-run the command"
+  return 1
+else
+  echo "${GREEN}SUCCESS!${NC} Please give a few minutes for Bench software stack to start back up!"
+fi
 }
 
 function go-cloud() {
-  AWS_SSO_OK=$(aws sts get-caller-identity | grep 'Account')
+AWS_SSO_OK=$(aws sts get-caller-identity | grep 'Account')
 
-  if [[ -z ${AWS_SSO_OK} ]] ; then
-    aws sso login
-  fi
+if [[ -z ${AWS_SSO_OK} ]] ; then
+  aws sso login
+fi
 
-  cd ${BENCH_SOURCE_DIR:-~/benchLabs}/bench-backend/src/apps/legacy-runtime
-  yawsso -d
+cd ${BENCH_SOURCE_DIR:-~/benchLabs}/bench-backend/src/apps/legacy-runtime
+yawsso -d
 }
+
+
+# Export all the configuration variables from the ~/.bench.conf file
+while read line;
+do
+  if [ ! -z "$line" ]; then
+    eval "export $line" > /dev/null
+  fi
+done < $HOME/.bench.conf
