@@ -9,7 +9,10 @@ NOCOLOR="$(tput sgr0)"
 function error() { echo -e "$UNDERLINE$RED$1$NOCOLOR\n"; }
 
 # Check that Homebrew is installed
-command -v brew >/dev/null 2>&1 || { error "Homebrew not installed: https://brew.sh/"; exit 1; }
+command -v brew >/dev/null 2>&1 || {
+	error "Homebrew not installed: https://brew.sh/"
+	exit 1
+}
 
 # Ask for the administrator password upfront
 sudo -v
@@ -50,11 +53,14 @@ brew install tmux
 brew install zellij
 
 # CLI helpers
+brew install starship
 brew install bat
 brew install bat-extras
 brew install ripgrep
 curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | zsh
 brew install lsd
+brew install fd
+brew install asciinema
 
 # Everything else
 brew install postgresql
@@ -62,7 +68,6 @@ brew install 1password-cli
 brew install macos-trash
 brew install neofetch
 brew install proselint
-brew install starship
 brew install lynx
 
 # Remove outdated versions from the cellar
