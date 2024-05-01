@@ -148,3 +148,34 @@ do
     eval "export $line" > /dev/null
   fi
 done < $HOME/.bench.conf
+
+
+function go-front() {
+  if [ ! -e .nvmrc ]; then
+    echo "Could not find .nvmrc file required for this to run. Verify you are in a front-end project folder"
+    return 1
+  fi
+
+  nvm use
+  if [ $? -eq 3 ]; then
+    nvm install "$(cat .nvmrc)"
+  fi
+
+  npm list -g yarn
+  if [ $? -eq 1 ]; then
+    npm install -g yarn
+  fi
+
+  npm list -g husky
+  if [ $? -eq 1 ]; then
+    npm install -g husky
+  fi
+
+  if grep prepare package.json; then
+    npm run prepare
+  else
+    husky install
+  fi
+
+  yarn install
+}

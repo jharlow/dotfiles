@@ -69,11 +69,3 @@ fi
 ```
 
 Go to iTerm2 preferences → Profiles → Advanced → Semantic History. Choose _Run command_ and type: `/Users/admin/bin/iopen "\1"`.
-
-### Useful iTerm2 triggers
-
-Go to iTerm2 preferences → Profiles → Advanced → Triggers. Click _Edit_.
-
-| Description                   | RegExp                   | Action         | Color          |
-| ----------------------------- | ------------------------ | -------------- | -------------- |
-| Highlight Git merge conflicts | `CONFLICT \([^)]+\)\:.*` | Highlight Text | Text: `f2ac00` |

@@ -9,8 +9,8 @@
 export DOTFILES_DIR="${HOME}/dotfiles"
 
 # If zhs/secrets-out.zsh does not exist, create it.
-secrets_path="${DOTFILES_DIR}/zsh/secrets.zsh"
-secrets_UNPROTECTED_path="${DOTFILES_DIR}/zsh/secrets-UNPROTECTED.zsh"
+secrets_path="${DOTFILES_DIR}/zsh/.secrets.zsh"
+secrets_UNPROTECTED_path="${DOTFILES_DIR}/zsh/.secrets-UNPROTECTED.zsh"
 
 if [ ! -f "$secrets_UNPROTECTED_path" ]; then
     echo "Creating ${secrets_UNPROTECTED_path}..."
@@ -29,6 +29,8 @@ if [ ! "$secrets_in_no_values" = "$secrets_out_no_values" ]; then
     rm $secrets_UNPROTECTED_path
     op --account "my.1password.com" inject --in-file $secrets_path --out-file $secrets_UNPROTECTED_path
 fi
+
+source $secrets_UNPROTECTED_path
 
 # Convenience commmand to update secrets
 alias update-secrets="rm $secrets_UNPROTECTED_path && op --account "my.1password.com" inject --in-file  $secrets_path --out-file $secrets_UNPROTECTED_path && source $secrets_UNPROTECTED_path"

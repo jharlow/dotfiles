@@ -63,6 +63,8 @@
 	skip = rebase --skip
 	# Rebase: abort
 	abort = rebase --abort
+	# Go to root level
+	root = rev-parse --show-toplevel
 	# Cancel local commits in the branch: git fuck master
 	fuck = "!f() { git reset --hard origin/$1; }; f"
 
