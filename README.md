@@ -35,3 +35,5 @@ Then run `make` to symlink your dotfiles to the root directory.
 ```sh
 make
 ```
+
+Don't forget to install your `zplug` and install `tmux` plugins (`prefix + I` aka `<CA> + <S-I>`) before `source ~/.zshrc`!

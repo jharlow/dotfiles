@@ -84,6 +84,7 @@ zplug "zsh-users/zsh-completions"
 zplug "plugins/git", from:oh-my-zsh
 zplug "plugins/aws", from:oh-my-zsh
 zplug "sineto/web-search"
+zplug "Aloxaf/fzf-tab"
 zplug load
 
 # Starship prompt
@@ -110,6 +111,7 @@ esac
 
 
 ### BENCH STUFF
+alias watch-log="aws logs describe-log-groups | jq -r \".logGroups[] | .logGroupName | select(startswith(\\\"/aws/lambda/$FULL_NAME\\\"))\" | fzf | xargs -I _ aws logs tail _ --follow"
 
 function legacy-stack-update() {
 echo "Updating legacy-runtime..."
