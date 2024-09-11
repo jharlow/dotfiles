@@ -83,6 +83,6 @@ function pr-diff-sum() {
         .appCode += \$file.lines 
       end
     ) | 
-    \"* \(.appCode // 0) lines of application code\n* \(.testCode // 0) lines of test code\n* \(.yarnLock // 0) lines of yarn.lock\"
+    \"> * \(.appCode // 0) lines of application code\n> * \(.testCode // 0) lines of test code\n> * \(.yarnLock // 0) lines of yarn.lock\"
   "
 }
