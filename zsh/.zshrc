@@ -113,7 +113,6 @@ esac
 
 ### BENCH STUFF
 alias watch-log="aws logs describe-log-groups | jq -r \".logGroups[] | .logGroupName | select(startswith(\\\"/aws/lambda/$FULL_NAME\\\"))\" | fzf | xargs -I _ aws logs tail _ --follow"
-alias pr-diff-sum='gh pr view --json files | jq -r " .files | map({ path: .path, lines: (.additions + .deletions) }) | reduce .[] as \$file ({}; if \$file.path | contains(\"test/\") then .testCode += \$file.lines elif \$file.path == \"yarn.lock\" then .yarnLock = \$file.lines else .appCode += \$file.lines end) | \"* \(.appCode // 0) lines of application code\n* \(.testCode // 0) lines of test code\n* \(.yarnLock // 0) lines of yarn.lock\" "'
 
 function legacy-stack-update() {
 echo "Updating legacy-runtime..."

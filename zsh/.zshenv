@@ -68,3 +68,21 @@ function git-changes-long {
 	  $revision_range | 
 	sed -E 's/[A-Z0-9]{2,4}-[0-9]{1,6}:/####/g'
 }
+
+# Provides a list of general TS PR diff lines breakdown to highlight minimal application code
+function pr-diff-sum() {
+  gh pr view --json files | jq -r "
+    .files | 
+    map({ path: .path, lines: (.additions + .deletions) }) | 
+    reduce .[] as \$file ({}; 
+      if \$file.path | contains(\"test/\") then 
+        .testCode += \$file.lines 
+      elif \$file.path == \"yarn.lock\" then 
+        .yarnLock = \$file.lines 
+      else 
+        .appCode += \$file.lines 
+      end
+    ) | 
+    \"* \(.appCode // 0) lines of application code\n* \(.testCode // 0) lines of test code\n* \(.yarnLock // 0) lines of yarn.lock\"
+  "
+}
