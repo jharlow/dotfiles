@@ -47,7 +47,6 @@ function git-changes {
     --first-parent \
     --no-merges \
     --format=%B \
-    --reverse \
     $revision_range | \
     sed -E 's/[A-Z0-9]{2,4}-[0-9]{1,6}://g' | \
     tail -r | \
