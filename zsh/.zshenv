@@ -39,6 +39,22 @@ alias update-secrets="rm $secrets_UNPROTECTED_path && op --account "my.1password
 # Functions loaded in `zshenv` are available to all shells including Neovim
 # (eg. `:r !git-changes-short` will not work if function is defined in `zshrc`)
 
+function git-changes {
+  base_branch=$(gh pr view --json baseRefName --jq '.baseRefName' | tr -d '"')
+  current_branch=$(git rev-parse --abbrev-ref HEAD)
+  revision_range="$base_branch..$current_branch"
+  git log \
+    --first-parent \
+    --no-merges \
+    --format=%B \
+    --reverse \
+    $revision_range | \
+    sed -E 's/[A-Z0-9]{2,4}-[0-9]{1,6}://g' | \
+    tail -r | \
+    sed '/^$/d' |
+    sed 's/^/* /'
+}
+
 # Provides a list of commits in the current branch that are not in the base branch
 # Removes anything except markdown bullet points
 function git-changes-short {
