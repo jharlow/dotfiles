@@ -25,6 +25,12 @@ alias cc="code ."
 # Download file and save it with filename of remote file
 alias get="curl -O -L"
 
+# AWS functions
+alias watch-log="aws logs describe-log-groups | jq -r \".logGroups[] | .logGroupName | select(startswith(\\\"/aws/lambda/$FULL_NAME\\\"))\" | fzf | xargs -I _ aws logs tail _ --follow"
+
+# Github Cli shortcuts
+alias reqrev="gh pr edit --add-reviewer ammarv23 --add-reviewer tanveertanejabench"
+
 ## COMPLETIONS
 # Load default completions
 autoload -Uz compinit
@@ -110,9 +116,7 @@ case ":$PATH:" in
   *) export PATH="$PATH:$GLOW_PATH" ;;
 esac
 
-
 ### BENCH STUFF
-alias watch-log="aws logs describe-log-groups | jq -r \".logGroups[] | .logGroupName | select(startswith(\\\"/aws/lambda/$FULL_NAME\\\"))\" | fzf | xargs -I _ aws logs tail _ --follow"
 
 function legacy-stack-update() {
 echo "Updating legacy-runtime..."
