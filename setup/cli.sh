@@ -50,6 +50,7 @@ $(brew --prefix)/opt/fzf/install
 # IDE
 brew install neovim
 brew install tmux
+brew install tmuxinator
 brew install zellij
 
 # CLI helpers

@@ -18,9 +18,11 @@ alias ls="ls --color"
 alias -- +x="chmod +x"
 alias o="open"
 alias oo="open ."
-alias n="$EDITOR"
+alias e="$EDITOR"
+alias n="nvim"
 alias lg="lazygit"
 alias cc="code ."
+alias mux=tmuxinator
 
 # Download file and save it with filename of remote file
 alias get="curl -O -L"

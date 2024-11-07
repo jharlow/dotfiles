@@ -1,0 +1,23 @@
+name: dotfiles
+root: ~/dotfiles
+
+windows:
+  - dot:
+      layout: main-vertical
+      panes:
+        - editor:
+            - e
+        - terminal:
+            -
+        - lazygit:
+            - lg
+  - nvim:
+      layout: main-vertical
+      root: ~/dotfiles/nvim
+      panes:
+        - editor:
+            - e
+        - terminal:
+            -
+        - lazygit:
+            - lg
