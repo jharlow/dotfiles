@@ -1,0 +1,18 @@
+name: cavelog
+root: ~/cavelog
+
+startup_pane: 2
+pre_window: asp johnharlow
+
+windows:
+  - dev:
+      layout: main-vertical
+      panes:
+        - editor:
+            - e
+        - server:
+            - ./bin/dev
+        - terminal:
+            -
+        - lazygit:
+            - lg

@@ -1,0 +1,13 @@
+name: www
+root: ~/hylia
+
+windows:
+  - dot:
+      layout: main-vertical
+      panes:
+        - editor:
+            - e
+        - server:
+            - npm run start
+        - lazygit:
+            - lg
