@@ -1,0 +1,53 @@
+# Stow
+brew 'stow'
+
+# Git
+brew 'git'
+brew 'gh'
+brew 'lazygit'
+
+# IDE
+brew 'neovim'
+brew 'tmux'
+brew 'tmuxinator'
+
+# CLI
+brew 'zsh'
+brew 'zplug'
+brew 'starship'
+brew 'bat'
+brew 'bat-extras'
+brew 'ripgrep'
+brew 'zoxide'
+brew 'lsd'
+brew 'fd'
+brew 'asciinema'
+
+# Node.js
+brew 'node'
+brew 'deno'
+brew 'pnpm'
+
+# 1Password
+cask '1password'
+cask '1password-cli'
+
+# Tools
+brew 'docker'
+brew 'lazydocker'
+brew 'postgresql'
+brew 'lynx'
+
+# Apps
+cask 'ghostty'
+cask 'raycast'
+cask 'arc'
+cask 'google-chrome'
+cask 'spotify'
+cask 'zoom'
+cask 'jordanbaird-ice'
+cask 'karabiner-elements'
+cask 'rectangle'
+cask 'rocket-typist'
+cask 'screen-studio'
+cask 'visual-studio-code'

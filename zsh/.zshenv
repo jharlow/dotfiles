@@ -1,5 +1,3 @@
-. "$HOME/.cargo/env"
-
 # SECURE ENVS
 # - Stored sectrets in dotfiles reference 1Password items however the actual values are pulled locally
 # - This means you are not prompted for 1Password credentials when running `source ~/.zshrc` or `source ~/.zshenv`
@@ -14,6 +12,7 @@ secrets_UNPROTECTED_path="${DOTFILES_DIR}/zsh/.secrets-UNPROTECTED.zsh"
 
 if [ ! -f "$secrets_UNPROTECTED_path" ]; then
     echo "Creating ${secrets_UNPROTECTED_path}..."
+    touch $secrets_UNPROTECTED_path
     op --account "my.1password.com" inject --in-file $secrets_path --out-file $secrets_UNPROTECTED_path
 fi
 
@@ -33,7 +32,7 @@ fi
 source $secrets_UNPROTECTED_path
 
 # Convenience commmand to update secrets
-alias update-secrets="rm $secrets_UNPROTECTED_path && op --account "my.1password.com" inject --in-file  $secrets_path --out-file $secrets_UNPROTECTED_path && source $secrets_UNPROTECTED_path"
+alias update-secrets='[ -f $secrets_UNPROTECTED_path ] && rm $secrets_UNPROTECTED_path; op --account "my.1password.com" inject --in-file $secrets_path --out-file $secrets_UNPROTECTED_path && source $secrets_UNPROTECTED_path'
 
 # FUNCTIONS
 # Functions loaded in `zshenv` are available to all shells including Neovim

@@ -1,3 +1,9 @@
+# Update 
+export DOTFILES_DIR="${HOME}/dotfiles"
+alias cellar="brew update &&
+  brew bundle install --cleanup --file=${DOTFILES_DIR}/brew/Brewfile --no-lock &&\
+  brew upgrade"
+
 # $EDITOR
 export EDITOR=nvim
 
@@ -85,7 +91,8 @@ eval "$(zoxide init zsh)"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Plugins
-source ~/.zplug/init.zsh
+export ZPLUG_HOME=$HOMEBREW_PREFIX/opt/zplug
+source $ZPLUG_HOME/init.zsh
 zplug "jeffreytse/zsh-vi-mode"
 zplug "zsh-users/zsh-autosuggestions"
 zplug "zsh-users/zsh-syntax-highlighting"
@@ -110,85 +117,13 @@ case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
-# pnpm end
 
+# rust
+. "$HOME/.cargo/env"
+
+# glow
 export GLOW_PATH="/Users/johnharlow/.local/bin/"
 case ":$PATH:" in
   *":$GLOW_PATH:"*) ;;
   *) export PATH="$PATH:$GLOW_PATH" ;;
 esac
-
-### BENCH STUFF
-
-function legacy-stack-update() {
-echo "Updating legacy-runtime..."
-cd ${BENCH_SOURCE_DIR:-~/benchLabs}/bench-backend/src/apps/legacy-runtime
-git pull
-if [ $? -ne 0 ]; then
-  echo "${RED}ERROR!${NC} Could not update legacy-runtime successfully, please check location and repository state"
-  return 1
-fi
-echo "Running update script... "
-ansible-playbook -i inventory.yaml update.yaml
-if [ $? -ne 0 ]; then
-  echo "${RED}ERROR!${NC} Please remediate errors in the output above and re-run the command"
-  return 1
-else
-  echo "${GREEN}SUCCESS!${NC} Please give a few minutes for Bench software stack to start back up!"
-fi
-}
-
-function go-cloud() {
-AWS_SSO_OK=$(aws sts get-caller-identity | grep 'Account')
-
-if [[ -z ${AWS_SSO_OK} ]] ; then
-  aws sso login
-fi
-
-cd ${BENCH_SOURCE_DIR:-~/benchLabs}/bench-backend/src/apps/legacy-runtime
-yawsso -d
-}
-
-
-# Export all the configuration variables from the ~/.bench.conf file
-while read line;
-do
-  if [ ! -z "$line" ]; then
-    eval "export $line" > /dev/null
-  fi
-done < $HOME/.bench.conf
-
-
-function go-front() {
-  if [ ! -e .nvmrc ]; then
-    echo "Could not find .nvmrc file required for this to run. Verify you are in a front-end project folder"
-    return 1
-  fi
-
-  nvm use
-  if [ $? -eq 3 ]; then
-    nvm install "$(cat .nvmrc)"
-  fi
-
-  npm list -g yarn
-  if [ $? -eq 1 ]; then
-    npm install -g yarn
-  fi
-
-  npm list -g husky
-  if [ $? -eq 1 ]; then
-    npm install -g husky
-  fi
-
-  if grep prepare package.json; then
-    npm run prepare
-  else
-    husky install
-  fi
-
-  yarn install
-}
-
-# ASDF config
-. "$HOME/.asdf/asdf.sh"
-. "$HOME/.asdf/completions/asdf.bash"

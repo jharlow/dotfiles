@@ -104,9 +104,9 @@
 
 [user]
 	# signingkey is derived from GPG key ID and safe in public repos
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILAtm5Gmqa3d6sV5LL4T8AI4qDCfsgrH3IWUL0jwLxFg
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAmC7SM2/WzFaaLKCt+V5QdoFPBpSpgC0AEnFQEEB1/S
 	name = John Harlow
-	email = info@jharlow.uk
+	email = info@jharlow.dev
 
 [gpg]
 	format = ssh
