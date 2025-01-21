@@ -14,12 +14,12 @@ Most of this configuration is set via symlinks managed by Stow.
 > [!CAUTION]
 > Following these steps will alter your machine's configuration. This repository was designed to be lightweight and easy to review. It is highly recommended that you understand what each command will do before executing them.
 
-Some software in necessary to get started with these `dotfiles`, although it is relatively minimal.
+Some software in necessary to get started with these `dotfiles`, although the requirements are minimal.
 
 - [Homebrew](https://brew.sh/)
 - [Git (installable via `homebrew`)](https://git-scm.com/)
 
-Once you have those two installed, you'll need to clone this repo:
+Once you have those installed, clone this repo:
 
 ```sh
 # clone from home so you have a ~/dotfiles directory
@@ -33,8 +33,9 @@ git clone git@github.com:jharlow/dotfiles.git
 You can install all the apps specified declaratively in `brew/Brewfile` by running the following command:
 
 ```sh
+# note this assumes you are using the ~/dotfiles directory
 brew update &&
-  brew bundle install --cleanup --file=${DOTFILES_DIR}/brew/Brewfile --no-lock &&\
+  brew bundle install --cleanup --file=~/dotfiles/brew/Brewfile --no-lock &&
   brew upgrade
 ```
 
@@ -64,6 +65,8 @@ I use [1Password](https://1password.com) to securely sign my Git commits and to 
 
 To enable this to work, sign in to the 1Password app, and then go to `Settings` -> `Developer`. Check "Use the SSH agent" and "Integrate with the 1Password CLI". You should then be able to run `op whoami` to verify that the integration is working.
 
+If you haven't set up SSH signing and secret access through 1Password before, check that `zsh/.secrets.zsh` points to valid secrets and that you have [set up SSH signing](https://developer.1password.com/docs/ssh/git-commit-signing/#step-1-configure-git-commit-signing-with-ssh).
+
 ### Push configuration changes
 
 Once apps are installed, the `make` command should be available in the terminal. Before running it, make sure you pull in the linked git submodules:
@@ -92,17 +95,17 @@ When you open `tmux` for the first time, you may need to install the `tpm` plugi
 
 ### Manual configuration
 
-There are some additional GUI applications that require manual configuration.
+There are some additional GUI applications that require manual configuration. All of them were installed in the "Install apps" step.
 
-#### Rectangle
+#### [Rectangle](https://rectangleapp.com/)
 
 Rectangle is my window management app of choice. To configure it, open the app, provide it with the permissions it needs, and import the `rectangle/config.json` file at "Settings" -> "Import".
 
-#### Karabiner-Elements
+#### [Karabiner-Elements](https://karabiner-elements.pqrs.org/)
 
 I use Karabiner-Elements to swap my caps lock and escape keys so that escape is closer to the home row when using `vim` bindings. To configure it, open the app, provide wit with the permissions it needs, and set the two swaps under "Simple Modifications" -> "For all devices".
 
-#### Ice
+#### [Ice](https://icemenubar.app/)
 
 Ice provides a nicer menu bar and hides most of the icons in the menu until requested. After opening the app and providing it the permissions it needs, go to the settings.
 
@@ -115,7 +118,7 @@ Under "Menu bar appearance", set:
 
 - "Shape kind" to `split`
 
-#### Rocket Typist
+#### [Rocket Typist](https://witt-software.com/rockettypist/)
 
 This is a paid app that I use for snippet macros, which saves me a lot of time when writing pull requests. To configure, open the app, enable the permissions it needs, and select:
 
@@ -123,7 +126,7 @@ This is a paid app that I use for snippet macros, which saves me a lot of time w
 - "Auto-paste" to `enabled`
 - "Launch at login" to `enabled`
 
-#### Raycast
+#### [Raycast](https://www.raycast.com/)
 
 You've probably already heard of Raycast. Configuration is very well-streamlined, open the app and follow it's instructions.
 
