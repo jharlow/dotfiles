@@ -13,7 +13,7 @@
 My aim is to make a lightweight, relatively unopinionated set of `dotfiles` that are targeted specifically to MacOS and should enable me to:
 
 - Declaratively set as much of my system configuration as possible
-- Enable me to go from a new machine to my standard development environment in under one hour
+- Go from a new machine to a development environment in ~15 mins
 
 Most of this configuration is set via symlinks managed by Stow.
 
