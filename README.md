@@ -6,7 +6,7 @@
 - Autoloading secrets secured by biometrics using 1Password
 - Declarative package management using `Brewfile`
 - `neovim` + `tmux` + `tmuxinator` setup for development
-- Lightweight, highly configurable pattern for setting configuration of terminal
+- Lightweight, highly customizable pattern for any other configuration
 
 ## Rationale
 
@@ -16,6 +16,18 @@ My aim is to make a lightweight, relatively unopinionated set of `dotfiles` that
 - Go from a new machine to a development environment in ~15 mins
 
 Most of this configuration is set via symlinks managed by Stow.
+
+<details>
+<summary><b>🤨 Why not <code>nix</code>?</b></summary>
+
+I have played around with a `nix` config on my Mac. My conclusion from many, many hours of playing with it was that:
+
+<ol>
+    <li><code>Brewfile</code> offers a pretty good compromise between a system built specifically for Mac and declarative style</li>
+    <li>It is a lot slower to push small changes to configuration through the machine using <code>nix</code>, whereas changes to symlinked files are available instantly</li>
+</ol>
+
+</details>
 
 ## Setup
 
@@ -53,23 +65,11 @@ After the installation of these `dotfiles` is complete, this command will be ali
 cellar
 ```
 
-<details>
-<summary><b>🤨 Why not <code>nix</code>?</b></summary>
-
-I have played around with a `nix` config on my Mac. My conclusion from many, many hours of playing with it was that:
-
-<ol>
-    <li><code>Brewfile</code> offers a pretty good compromise between a system built specifically for Mac and declarative style</li>
-    <li>It is a lot slower to push small changes to configuration through the machine using <code>nix</code>, whereas changes to symlinked files are available instantly</li>
-</ol>
-
-</details>
-
 Finally, install Rust using [`rustup`](https://rustup.rs/).
 
 ### Get started with 1Password
 
-I use [1Password](https://1password.com) to securely sign my Git commits and to securely access secrets in the terminal. You can see specifically how this is managed in `zsh/.zshenv` and `zsh/.secrets.zsh`.
+I use [1Password](https://1password.com) to sign my Git commits and to securely access secrets in the terminal. You can see specifically how this is managed in `zsh/.zshenv` and `zsh/.secrets.zsh`.
 
 To enable this to work, sign in to the 1Password app, and then go to `Settings` -> `Developer`. Check "Use the SSH agent" and "Integrate with the 1Password CLI". You should then be able to run `op whoami` to verify that the integration is working.
 
