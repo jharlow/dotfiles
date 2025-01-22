@@ -1,5 +1,13 @@
 # `jharlow`'s dotfiles
 
+## Overview
+
+- Simple `zsh` configuration with plugins supplied via `zplug`
+- Autoloading secrets secured by biometrics using 1Password
+- Declarative package management using `Brewfile`
+- `neovim` + `tmux` + `tmuxinator` setup for development
+- Lightweight, highly configurable pattern for setting configuration of terminal
+
 ## Rationale
 
 My aim is to make a lightweight, relatively unopinionated set of `dotfiles` that are targeted specifically to MacOS and should enable me to:
