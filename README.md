@@ -145,3 +145,5 @@ Mostly, usage should be intuitive and invisible. Because everything is symlinked
 If you update the `zsh/.secrets.zsh` file, or the secret values as stored in 1Password, you'll need to run `update-secrets`. Similarly, if you update the `brew/Brewfile` you'll need to run `cellar` for those changes to take effect.
 
 Symlinks are declared in `Makefile`, which makes it easy to change the structure of the repository and/or add new configurations following this pattern.
+
+Because it is a more complex configuration, `nvim` has been extracted to its own repository and linked into these `dotfiles` via Git submodule. To make changes to `nvim` in Git, you'll need to move into that directory.
