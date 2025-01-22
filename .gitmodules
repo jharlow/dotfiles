@@ -10,10 +10,6 @@
 	path = tmux/.tmux/plugins/tmux
 	url = https://github.com/catppuccin/tmux
 
-[submodule "tmux-battery"]
-  path = tmux/.tmux/plugins/tmux-battery
-  url = https://github.com/tmux-plugins/tmux-battery
-
 [submodule "tmux-copycat"]
 	path = tmux/.tmux/plugins/tmux-copycat
 	url =	https://github.com/tmux-plugins/tmux-copycat
