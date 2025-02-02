@@ -1,17 +1,19 @@
-# Stow
+# Terminal
+
+## Stow
 brew 'stow'
 
-# Git
+## Git
 brew 'git'
 brew 'gh'
 brew 'lazygit'
 
-# IDE
+## IDE
 brew 'neovim'
 brew 'tmux'
 brew 'tmuxinator'
 
-# CLI
+## CLI
 brew 'zsh'
 brew 'zplug'
 brew 'starship'
@@ -23,31 +25,44 @@ brew 'lsd'
 brew 'fd'
 brew 'asciinema'
 
-# Node.js
+## Node.js
 brew 'node'
 brew 'deno'
 brew 'pnpm'
 
-# 1Password
-cask '1password'
-cask '1password-cli'
-
-# Tools
+## Tools
 brew 'docker'
 brew 'lazydocker'
 brew 'postgresql'
 brew 'lynx'
 
+
 # Apps
+
+## 1Password
+cask '1password'
+cask '1password-cli'
+
+## Development
 cask 'ghostty'
-cask 'raycast'
-cask 'arc'
-cask 'google-chrome'
-cask 'spotify'
-cask 'zoom'
+cask 'visual-studio-code'
+
+## Utilities
 cask 'jordanbaird-ice'
 cask 'karabiner-elements'
+cask 'raycast'
 cask 'rectangle'
 cask 'rocket-typist'
 cask 'screen-studio'
-cask 'visual-studio-code'
+
+## Communication
+cask 'whatsapp'
+cask 'zoom'
+
+## Browsers
+cask 'arc'
+cask 'firefox'
+cask 'google-chrome'
+
+# Media
+cask 'spotify'
