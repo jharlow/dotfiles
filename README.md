@@ -71,7 +71,12 @@ Finally, install Rust using [`rustup`](https://rustup.rs/).
 
 I use [1Password](https://1password.com) to sign my Git commits and to securely access secrets in the terminal. You can see specifically how this is managed in `zsh/.zshenv` and `zsh/.secrets.zsh`.
 
-To enable this to work, sign in to the 1Password app, and then go to `Settings` -> `Developer`. Check "Use the SSH agent" and "Integrate with the 1Password CLI". You should then be able to run `op whoami` to verify that the integration is working.
+To enable this to work, sign in to the 1Password app, and then go to `Settings` -> `Developer`. Check "Use the SSH agent" and "Integrate with the 1Password CLI". You should then be able to verify that the integration is working:
+
+```sh
+op signin
+op whoami
+```
 
 If you haven't set up SSH signing and secret access through 1Password before, check that `zsh/.secrets.zsh` points to valid secrets and that you have [set up SSH signing](https://developer.1password.com/docs/ssh/git-commit-signing/#step-1-configure-git-commit-signing-with-ssh).
 
