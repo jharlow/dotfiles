@@ -7,6 +7,7 @@ brew 'stow'
 brew 'git'
 brew 'gh'
 brew 'lazygit'
+brew 'git-delta'
 
 ## IDE
 brew 'neovim'
@@ -24,6 +25,8 @@ brew 'zoxide'
 brew 'lsd'
 brew 'fd'
 brew 'asciinema'
+brew 'awscli'
+brew 'mongosh'
 
 ## Node.js
 brew 'node'
@@ -31,11 +34,10 @@ brew 'deno'
 brew 'pnpm'
 
 ## Tools
-brew 'docker'
+cask 'docker'
 brew 'lazydocker'
 brew 'postgresql'
 brew 'lynx'
-
 
 # Apps
 
@@ -46,6 +48,7 @@ cask '1password-cli'
 ## Development
 cask 'ghostty'
 cask 'visual-studio-code'
+cask 'mongodb-compass'
 
 ## Utilities
 cask 'jordanbaird-ice'
@@ -58,6 +61,8 @@ cask 'screen-studio'
 ## Communication
 cask 'whatsapp'
 cask 'zoom'
+cask 'slack'
+cask 'loom'
 
 ## Browsers
 cask 'arc'
