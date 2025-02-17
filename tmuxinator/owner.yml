@@ -1,0 +1,34 @@
+name: owner
+root: ~/Owner
+
+windows:
+  - olympus:
+      layout: main-vertical
+      root: ~/Owner/apps/olympus
+      panes:
+        - editor:
+            - e
+        - server:
+            -
+        - lazygit:
+            - lg
+  - eris:
+      layout: main-vertical
+      root: ~/Owner/apps/eris
+      panes:
+        - editor:
+            - e
+        - server:
+            -
+        - lazygit:
+            - lg
+  - root:
+      layout: main-vertical
+      root: ~/Owner
+      panes:
+        - editor:
+            - e
+        - server:
+            -
+        - lazygit:
+            - lg
