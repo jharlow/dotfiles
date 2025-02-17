@@ -55,7 +55,6 @@ cask 'jordanbaird-ice'
 cask 'karabiner-elements'
 cask 'raycast'
 cask 'rectangle'
-cask 'rocket-typist'
 cask 'screen-studio'
 
 ## Communication

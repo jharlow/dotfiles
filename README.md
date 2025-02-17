@@ -110,6 +110,21 @@ When you open `tmux` for the first time, you may need to install the `tpm` plugi
 
 There are some additional GUI applications that require manual configuration. All of them were installed in the "Install apps" step.
 
+#### [Arc](https://arc.net/)
+
+Arc is my daily-driving browser and I don't think I'll ever be able to go back to Chrome. My configuration is pretty simple. In the settings, I set:
+
+- "Profiles" -> "Search engine" to "DuckDuckGo"
+- "Icon" to "Fluted Glass"
+
+For extensions, I use:
+
+- [DarkReader](https://chromewebstore.google.com/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh)
+- [SocialFocus](https://chromewebstore.google.com/detail/socialfocus-hide-distract/abocjojdmemdpiffeadpdnicnlhcndcg)
+- [AdBlock](https://chromewebstore.google.com/detail/adblock-%E2%80%94-block-ads-acros/gighmmpiobklfepjocnamgkkbiglidom)
+- [1Password](https://chromewebstore.google.com/detail/1password-%E2%80%93-password-mana/aeblfdkhhhdcdjpifhhbdiojplfjncoa)
+- [Okta](https://chromewebstore.google.com/detail/okta-browser-plugin/glnpjglilkicbckjpbgcfkogebgllemb)
+
 #### [Rectangle](https://rectangleapp.com/)
 
 Rectangle is my window management app of choice. To configure it, open the app, provide it with the permissions it needs, and import the `rectangle/config.json` file at "Settings" -> "Import".
@@ -130,14 +145,6 @@ Under "General", set:
 Under "Menu bar appearance", set:
 
 - "Shape kind" to `split`
-
-#### [Rocket Typist](https://witt-software.com/rockettypist/)
-
-This is a paid app that I use for snippet macros, which saves me a lot of time when writing pull requests. To configure, open the app, enable the permissions it needs, and select:
-
-- "Abbreviations" to `enabled`
-- "Auto-paste" to `enabled`
-- "Launch at login" to `enabled`
 
 #### [Raycast](https://www.raycast.com/)
 
