@@ -1,0 +1,13 @@
+name: coliving
+root: ~/coliving
+
+windows:
+  - dot:
+      layout: main-vertical
+      panes:
+        - editor:
+            - e
+        - terminal:
+            -
+        - lazygit:
+            - lg
