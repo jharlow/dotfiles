@@ -150,6 +150,10 @@ Under "Menu bar appearance", set:
 
 You've probably already heard of Raycast. Configuration is very well-streamlined, open the app and follow it's instructions.
 
+The only additional configuration:
+
+- Use the "Import snippets" command and navigate to `~/dotfiles/raycast/snippets.json`
+
 ## Usage
 
 Mostly, usage should be intuitive and invisible. Because everything is symlinked, you should be able to make changes to the files in `~/dotfiles` and have those changes become instantly available (sometimes you may need to `source` them when using the same terminal instance).

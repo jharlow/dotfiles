@@ -1,0 +1,62 @@
+[
+  {
+    "name": "My name",
+    "text": "John Harlow",
+    "keyword": ":name"
+  },
+  {
+    "name": "Owner Email",
+    "text": "john.harlow@owner.com",
+    "keyword": ":oe"
+  },
+  {
+    "name": "Email",
+    "text": "hello@jharlow.dev",
+    "keyword": ":email"
+  },
+  {
+    "name": "Github Profile Link",
+    "text": "https:\/\/github.com\/jharlow",
+    "keyword": ":ghlink"
+  },
+  {
+    "name": "LinkedIn Profile Link",
+    "text": "https:\/\/www.linkedin.com\/in\/jharlowuk\/",
+    "keyword": ":lilink"
+  },
+  {
+    "name": "Personal Site Link",
+    "text": "https:\/\/jharlow.dev\/",
+    "keyword": ":weblink"
+  },
+  {
+    "name": "PR: Suggestion",
+    "text": "👀 **Suggestion:**",
+    "keyword": ":sug"
+  },
+  {
+    "name": "PR: Request",
+    "text": "🛑 **Request:**",
+    "keyword": ":req"
+  },
+  {
+    "name": "PR: Question",
+    "text": "❓ **Question:**",
+    "keyword": ":que"
+  },
+  {
+    "name": "PR: Celebration",
+    "text": "🎉 **Celebration:**",
+    "keyword": ":cel"
+  },
+  {
+    "name": "PR: Request Actioned",
+    "text": "✅ **Request actioned**: changes are reflected in the latest commit. Please resolve your thread if these changes are satisfactory.",
+    "keyword": ":act"
+  },
+  {
+    "name": "PR: Learning question",
+    "text": "🎓 **Question for my learning:** ",
+    "keyword": ":lq"
+  }
+]
