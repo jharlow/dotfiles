@@ -3,7 +3,7 @@ all: stow
 
 .PHONY: stow
 stow: create_directories
-	@stow -t ~ tmux zsh git
+	@stow -t ~ tmux zsh git vim
 	@stow -t ~/.config/tmuxinator tmuxinator
 	@stow -t ~/.config/nvim nvim
 	@stow -t ~/.config/git gitconfig
@@ -12,7 +12,7 @@ stow: create_directories
 
 .PHONY: unstow
 unstow:
-	@stow -D -t ~ tmux zsh git
+	@stow -D -t ~ tmux zsh git vim
 	@stow -D -t ~/.config/tmuxinator tmuxinator
 	@stow -D -t ~/.config/nvim nvim
 	@stow -D -t ~/.config/git gitconfig
@@ -24,3 +24,4 @@ create_directories:
 	@mkdir -p ~/.config/git
 	@mkdir -p ~/.config/gh
 	@mkdir -p ~/.config/ghostty
+	@mkdir -p ~/.vim

@@ -39,6 +39,9 @@ brew 'lazydocker'
 brew 'postgresql'
 brew 'lynx'
 
+## Fonts
+cask font-jetbrains-mono
+
 # Apps
 
 ## 1Password
