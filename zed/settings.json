@@ -7,6 +7,9 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "git_panel": {
+    "dock": "left"
+  },
   "icon_theme": "JetBrains New UI Icons (Dark)",
   "features": {
     "edit_prediction_provider": "zed"
@@ -23,11 +26,17 @@
   "inlay_hints": {
     "enabled": true,
     "typeHints": true,
+    "show_background": true,
+    "show_other_hints": true,
     "parameterHints": true,
     "chainingHints": true,
-    "show_type_hints": true
+    "show_type_hints": false
   },
   "relative_line_numbers": true,
   "use_multiline_find": true,
-  "vertical_scroll_margin": 20
+  "vertical_scroll_margin": 20,
+  "terminal": {
+    "dock": "right",
+    "font_size": 14
+  }
 }

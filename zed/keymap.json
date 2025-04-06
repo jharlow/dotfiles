@@ -17,8 +17,8 @@
       "ctrl-cmd-l": "workspace::SwapPaneRight",
       "ctrl-cmd-k": "workspace::SwapPaneUp",
       "ctrl-cmd-j": "workspace::SwapPaneDown",
-      "space i": "workspace::ToggleBottomDock",
-      "space u": "workspace::NewTerminal"
+      "space u": "workspace::ToggleRightDock",
+      "space y": "workspace::NewTerminal"
     }
   },
   {
@@ -75,7 +75,7 @@
   {
     "context": "Terminal",
     "bindings": {
-      "space i": "workspace::ToggleBottomDock",
+      "space u": "workspace::ToggleRightDock",
       "L": "pane::ActivateNextItem",
       "H": "pane::ActivatePreviousItem",
       "ctrl-cmd-h": "workspace::SwapPaneLeft",
