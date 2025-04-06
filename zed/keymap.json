@@ -1,10 +1,3 @@
-// Zed keymap
-//
-// For information on binding keys, see the Zed
-// documentation: https://zed.dev/docs/key-bindings
-//
-// To see the default key bindings run `zed: open default keymap`
-// from the command palette.
 [
   {
     "context": "Workspace",
@@ -17,8 +10,8 @@
       "ctrl-cmd-l": "workspace::SwapPaneRight",
       "ctrl-cmd-k": "workspace::SwapPaneUp",
       "ctrl-cmd-j": "workspace::SwapPaneDown",
-      "space u": "workspace::ToggleRightDock",
-      "space y": "workspace::NewTerminal"
+      "cmd-k h": "workspace::ToggleLeftDock",
+      "cmd-k l": "workspace::ToggleRightDock"
     }
   },
   {
@@ -29,7 +22,7 @@
     }
   },
   {
-    "context": "Editor && vim_mode == normal && !menu",
+    "context": "Editor && vim_mode == normal && !menu && !BufferSearchBar",
     "bindings": {
       "K": "editor::Hover",
       "L": "pane::ActivateNextItem",
@@ -49,8 +42,10 @@
       "ctrl-shift-j": "pane::SplitDown",
       "ctrl-shift-k": "pane::SplitUp",
       "space g b": "git::Blame",
-      "space v": "pane::SplitRight",
-      "space h": "pane::SplitDown",
+      "space g h": "editor::ToggleSelectedDiffHunks",
+      "space g r": "git::Restore",
+      "space g s": "git::ToggleStaged",
+      "space g c": "git::ExpandCommitEditor",
       "space /": "editor::ToggleComments",
       "space c a": "editor::ToggleCodeActions",
       "space f": "editor::Format",
@@ -61,21 +56,15 @@
     }
   },
   {
-    "context": "Editor && !ProjectPanel",
+    "context": "vim_mode == normal || vim_mode == visual",
     "bindings": {
-      "space e": "workspace::ToggleLeftDock"
-    }
-  },
-  {
-    "context": "ProjectPanel",
-    "bindings": {
-      "space e": ["workspace::SendKeystrokes", "cmd-b"]
+      "s": "vim::PushSneak",
+      "shift-s": "vim::PushSneakBackward"
     }
   },
   {
     "context": "Terminal",
     "bindings": {
-      "space u": "workspace::ToggleRightDock",
       "L": "pane::ActivateNextItem",
       "H": "pane::ActivatePreviousItem",
       "ctrl-cmd-h": "workspace::SwapPaneLeft",
@@ -85,9 +74,7 @@
       "ctrl-shift-l": "pane::SplitRight",
       "ctrl-shift-h": "pane::SplitLeft",
       "ctrl-shift-j": "pane::SplitDown",
-      "ctrl-shift-k": "pane::SplitUp",
-      "space v": "pane::SplitRight",
-      "space h": "pane::SplitDown"
+      "ctrl-shift-k": "pane::SplitUp"
     }
   }
 ]

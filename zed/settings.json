@@ -12,7 +12,7 @@
   },
   "icon_theme": "JetBrains New UI Icons (Dark)",
   "features": {
-    "edit_prediction_provider": "zed"
+    "edit_prediction_provider": "copilot"
   },
   "vim_mode": true,
   "ui_font_size": 16,
@@ -32,6 +32,12 @@
     "chainingHints": true,
     "show_type_hints": false
   },
+  "vim": {
+    "use_system_clipboard": "always",
+    "use_smartcase_find": true,
+    "use_multiline_find": true
+  },
+  "cursor_blink": false,
   "relative_line_numbers": true,
   "use_multiline_find": true,
   "vertical_scroll_margin": 20,
