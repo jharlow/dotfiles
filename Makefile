@@ -9,6 +9,7 @@ stow: create_directories
 	@stow -t ~/.config/git gitconfig
 	@stow -t ~/.config/gh gh
 	@stow -t ~/.config/ghostty ghostty
+	@stow -t ~/.config/zed zed
 
 .PHONY: unstow
 unstow:
@@ -16,6 +17,7 @@ unstow:
 	@stow -D -t ~/.config/tmuxinator tmuxinator
 	@stow -D -t ~/.config/nvim nvim
 	@stow -D -t ~/.config/git gitconfig
+	@stow -D -t ~/.config/zed zed
 
 .PHONY: create_directories
 create_directories:
@@ -24,4 +26,5 @@ create_directories:
 	@mkdir -p ~/.config/git
 	@mkdir -p ~/.config/gh
 	@mkdir -p ~/.config/ghostty
+	@mkdir -p ~/.config/zed
 	@mkdir -p ~/.vim

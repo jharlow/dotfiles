@@ -1,0 +1,93 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-cmd-h": "workspace::SwapPaneLeft",
+      "ctrl-cmd-l": "workspace::SwapPaneRight",
+      "ctrl-cmd-k": "workspace::SwapPaneUp",
+      "ctrl-cmd-j": "workspace::SwapPaneDown",
+      "space i": "workspace::ToggleBottomDock",
+      "space u": "workspace::NewTerminal"
+    }
+  },
+  {
+    "context": "",
+    "bindings": {
+      "J": "menu::SelectNext",
+      "K": "menu::SelectPrevious"
+    }
+  },
+  {
+    "context": "Editor && vim_mode == normal && !menu",
+    "bindings": {
+      "K": "editor::Hover",
+      "L": "pane::ActivateNextItem",
+      "H": "pane::ActivatePreviousItem",
+      "space w": "workspace::Save",
+      "space c": "pane::CloseActiveItem",
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-cmd-h": "workspace::SwapPaneLeft",
+      "ctrl-cmd-l": "workspace::SwapPaneRight",
+      "ctrl-cmd-k": "workspace::SwapPaneUp",
+      "ctrl-cmd-j": "workspace::SwapPaneDown",
+      "ctrl-shift-l": "pane::SplitRight",
+      "ctrl-shift-h": "pane::SplitLeft",
+      "ctrl-shift-j": "pane::SplitDown",
+      "ctrl-shift-k": "pane::SplitUp",
+      "space g b": "git::Blame",
+      "space v": "pane::SplitRight",
+      "space h": "pane::SplitDown",
+      "space /": "editor::ToggleComments",
+      "space c a": "editor::ToggleCodeActions",
+      "space f": "editor::Format",
+      "space r": "editor::Rename",
+      "space d": "diagnostics::Deploy",
+      "space s f": "file_finder::Toggle",
+      "space o": "outline::Toggle"
+    }
+  },
+  {
+    "context": "Editor && !ProjectPanel",
+    "bindings": {
+      "space e": "workspace::ToggleLeftDock"
+    }
+  },
+  {
+    "context": "ProjectPanel",
+    "bindings": {
+      "space e": ["workspace::SendKeystrokes", "cmd-b"]
+    }
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "space i": "workspace::ToggleBottomDock",
+      "L": "pane::ActivateNextItem",
+      "H": "pane::ActivatePreviousItem",
+      "ctrl-cmd-h": "workspace::SwapPaneLeft",
+      "ctrl-cmd-l": "workspace::SwapPaneRight",
+      "ctrl-cmd-k": "workspace::SwapPaneUp",
+      "ctrl-cmd-j": "workspace::SwapPaneDown",
+      "ctrl-shift-l": "pane::SplitRight",
+      "ctrl-shift-h": "pane::SplitLeft",
+      "ctrl-shift-j": "pane::SplitDown",
+      "ctrl-shift-k": "pane::SplitUp",
+      "space v": "pane::SplitRight",
+      "space h": "pane::SplitDown"
+    }
+  }
+]
