@@ -9,7 +9,7 @@ brew 'gh'
 brew 'lazygit'
 brew 'git-delta'
 
-## IDE
+## Terminal IDE
 brew 'neovim'
 brew 'tmux'
 brew 'tmuxinator'
@@ -27,6 +27,7 @@ brew 'fd'
 brew 'asciinema'
 brew 'awscli'
 brew 'mongosh'
+brew 'hyperfine
 
 ## Node.js
 brew 'node'
@@ -51,7 +52,10 @@ cask '1password-cli'
 ## Development
 cask 'ghostty'
 cask 'visual-studio-code'
+cask 'zed'
+cask 'cursor'
 cask 'mongodb-compass'
+cask 'pgadmin4'
 
 ## Utilities
 cask 'jordanbaird-ice'
