@@ -3,6 +3,8 @@
 ## Stow
 brew 'stow'
 
+brew 'jq'
+
 ## Git
 brew 'git'
 brew 'gh'
