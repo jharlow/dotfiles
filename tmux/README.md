@@ -346,13 +346,17 @@ Use **[ANSI OSC 52](https://en.wikipedia.org/wiki/ANSI_escape_code#Escape_sequen
 Second workaround is really involved and consists of [local network listener and SSH remote tunneling](https://apple.stackexchange.com/a/258168):
 
 - SSH onto target machine with remote tunneling on
+
   ```
   ssh -R 2222:localhost:3333  alexeys@192.168.33.100
   ```
+
 - When text is copied inside tmux (by mouse, by keyboard by whatever configured shortcut), pipe text to network socket on remote machine
+
   ```
   echo "buffer" | nc localhost 2222
   ```
+
 - Buffer will be sent thru SSH remote tunnel from port `2222` on remote machine to port `3333` on local machine.
 - Setup a service on local machine (systemd service unit with socket activation), which listens on network socket on port `3333`, and pipes any input to `pbcopy` command (or `xsel`, `xclip`).
 
