@@ -1,3 +1,7 @@
+# Give git (and other prompt commands) more time before timing out.
+# Default is 500ms, which large repos can exceed and trigger warnings.
+command_timeout = 2000
+
 format = """
 $username\
 $hostname\

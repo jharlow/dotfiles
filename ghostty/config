@@ -1,1 +1,2 @@
-theme = GruvboxDark
+theme = Gruvbox Dark
+keybind = shift+enter=text:\x1b\r
