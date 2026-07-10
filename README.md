@@ -154,6 +154,25 @@ The only additional configuration:
 
 - Use the "Import snippets" command and navigate to `~/dotfiles/raycast/snippets.json`
 
+#### [Claude Code](https://claude.com/claude-code)
+
+Claude Code configuration is split across two Stow packages:
+
+- `claude/` is symlinked into `~/.claude` and holds `settings.json`, `statusline.sh`, custom subagents (`agents/`), and the MCP tooling (`mcp/`).
+- `agents/` is symlinked into `~/.agents`, the shared skills location used by all my coding agents. It holds the installed [skills](https://code.claude.com/docs/en/skills) and their `.skill-lock.json`. `make` also (re)creates the `~/.claude/skills/*` symlinks that point Claude Code at this shared location.
+
+**Skills** are version-controlled directly, so they're present on a fresh machine after `make` — no re-install needed. New skills installed into `~/.agents/skills` land in the repo automatically (it's a symlink), so just commit them.
+
+**Custom subagents** are Markdown files in `claude/agents/`; drop a `<name>.md` in and it appears at `~/.claude/agents/<name>.md`.
+
+**MCP servers** can't be symlinked (user-scope servers live in `~/.claude.json`, which is machine-specific and private). Instead, declare them in `claude/mcp/servers.json` and apply them with:
+
+```sh
+make claude-mcp
+```
+
+This pushes each server into Claude's user scope via `claude mcp add-json` and is safe to re-run. See `claude/mcp/servers.example.json` for the format (e.g. project-specific servers like a local devtools MCP). Requires the `claude` CLI and `jq`.
+
 ## Usage
 
 Mostly, usage should be intuitive and invisible. Because everything is symlinked, you should be able to make changes to the files in `~/dotfiles` and have those changes become instantly available (sometimes you may need to `source` them when using the same terminal instance).

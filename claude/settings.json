@@ -1,0 +1,10 @@
+{
+  "model": "opus[1m]",
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
+  "enabledPlugins": {},
+  "fastMode": true,
+  "tui": "fullscreen"
+}

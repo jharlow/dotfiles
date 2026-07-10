@@ -1,0 +1,16 @@
+{
+  "_comment": "Example MCP server declarations. Copy entries you want into servers.json, then run `make claude-mcp`. See https://code.claude.com/docs/en/mcp for the full config format.",
+  "mcpServers": {
+    "sightglass": {
+      "type": "http",
+      "url": "http://localhost:4444/api/mcp"
+    },
+    "example-stdio-server": {
+      "command": "npx",
+      "args": ["-y", "some-mcp-server"],
+      "env": {
+        "API_KEY": "..."
+      }
+    }
+  }
+}
