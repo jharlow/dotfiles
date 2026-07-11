@@ -9,7 +9,7 @@
 
 [core]
 	ignorecase = false
-	editor = vim
+	editor = nvim
 	pager = delta
 	autocrlf = false
 	safecrlf = false
