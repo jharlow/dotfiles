@@ -27,6 +27,8 @@ alias oo="open ."
 alias e="$EDITOR"
 alias n="nvim"
 alias lg="lazygit"
+alias l="lazygit"
+alias c="claude"
 alias cc="code ."
 alias mux=tmuxinator
 
