@@ -27,6 +27,51 @@
       "skillFolderHash": "eb6a23305aea6e340d14b9de3766e721f9f4861b",
       "installedAt": "2026-07-09T16:55:39.764Z",
       "updatedAt": "2026-07-09T16:55:39.764Z"
+    },
+    "graphite": {
+      "source": "withgraphite/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/withgraphite/agent-skills.git",
+      "skillPath": "skills/graphite/SKILL.md",
+      "skillFolderHash": "404bf8d36e67273abeb7fbbf66efb2ba3ef15375",
+      "installedAt": "2026-07-13T22:33:35.653Z",
+      "updatedAt": "2026-07-13T22:33:35.653Z"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "skillFolderHash": "3116f3e62dbd02b44a598b1aa690d2a8938e8f89",
+      "installedAt": "2026-07-13T22:35:58.254Z",
+      "updatedAt": "2026-07-13T22:35:58.254Z"
+    },
+    "gh-fix-ci": {
+      "source": "openai/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openai/skills.git",
+      "skillPath": "skills/.curated/gh-fix-ci/SKILL.md",
+      "skillFolderHash": "3f99938c9464393f27cc4cc00e4ba17387517803",
+      "installedAt": "2026-07-13T22:41:46.553Z",
+      "updatedAt": "2026-07-13T22:41:46.553Z"
+    },
+    "gh-address-comments": {
+      "source": "openai/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openai/skills.git",
+      "skillPath": "skills/.curated/gh-address-comments/SKILL.md",
+      "skillFolderHash": "042316bece4a9f832145dcff7d5506e99fe3ecf1",
+      "installedAt": "2026-07-13T22:42:09.664Z",
+      "updatedAt": "2026-07-13T22:42:09.664Z"
+    },
+    "babysit-pr": {
+      "source": "openai/codex",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openai/codex.git",
+      "skillPath": ".codex/skills/babysit-pr/SKILL.md",
+      "skillFolderHash": "229b745de8be933efda69e3bddc837228b181ee5",
+      "installedAt": "2026-07-13T22:52:03.960Z",
+      "updatedAt": "2026-07-13T22:52:03.960Z"
     }
   },
   "lastSelectedAgents": [
