@@ -18,6 +18,7 @@ brew 'tmuxinator'
 
 ## CLI
 brew 'zsh'
+brew 'fzf'
 brew 'zplug'
 brew 'starship'
 brew 'bat'

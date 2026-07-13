@@ -89,6 +89,8 @@ setopt appendhistory
 # Zoxide
 eval "$(zoxide init zsh)"
 
+# fzf
+source <(fzf --zsh)
 # FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
