@@ -107,6 +107,9 @@ zplug "sineto/web-search"
 zplug "Aloxaf/fzf-tab"
 zplug load
 
+# Override oh-my-zsh git plugin's `gr` (git remote) -> jump to repo root
+alias gr='gitroot'
+
 # Starship prompt
 export STARSHIP_CONFIG=~/.starship.toml
 eval "$(starship init zsh)"
