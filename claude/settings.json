@@ -6,5 +6,8 @@
   },
   "enabledPlugins": {},
   "fastMode": true,
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "permissions": {
+    "defaultMode": "auto"
+  }
 }
