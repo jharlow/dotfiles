@@ -9,6 +9,7 @@ stow: create_directories
 	@stow -t ~/.config/git gitconfig
 	@stow -t ~/.config/gh gh
 	@stow -t ~/.config/ghostty ghostty
+	@stow -t "$(HOME)/Library/Application Support/lazygit" lazygit
 	@stow -t ~/.config/zed zed
 	@stow -t ~/.claude claude
 	@stow -t ~/.agents agents
@@ -39,6 +40,7 @@ unstow:
 	@stow -D -t ~/.config/nvim nvim
 	@stow -D -t ~/.config/git gitconfig
 	@stow -D -t ~/.config/zed zed
+	@stow -D -t "$(HOME)/Library/Application Support/lazygit" lazygit
 	@stow -D -t ~/.claude claude
 	@for skill in $(CURDIR)/agents/skills/*/; do \
 		name=$$(basename $$skill); \
@@ -53,6 +55,7 @@ create_directories:
 	@mkdir -p ~/.config/git
 	@mkdir -p ~/.config/gh
 	@mkdir -p ~/.config/ghostty
+	@mkdir -p "$(HOME)/Library/Application Support/lazygit"
 	@mkdir -p ~/.config/zed
 	@mkdir -p ~/.claude
 	@mkdir -p ~/.claude/skills
