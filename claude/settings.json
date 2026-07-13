@@ -1,4 +1,7 @@
 {
+  "permissions": {
+    "defaultMode": "auto"
+  },
   "model": "opus[1m]",
   "statusLine": {
     "type": "command",
@@ -6,8 +9,5 @@
   },
   "enabledPlugins": {},
   "fastMode": true,
-  "tui": "fullscreen",
-  "permissions": {
-    "defaultMode": "auto"
-  }
+  "tui": "fullscreen"
 }
