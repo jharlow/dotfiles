@@ -29,6 +29,7 @@ alias n="nvim"
 alias lg="lazygit"
 alias l="lazygit"
 alias c="claude"
+alias cl="clear"
 alias cc="code ."
 alias mux=tmuxinator
 
