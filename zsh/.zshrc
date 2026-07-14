@@ -113,7 +113,12 @@ alias gr='gitroot'
 
 # Starship prompt
 export STARSHIP_CONFIG=~/.starship.toml
-eval "$(starship init zsh)"
+# Initialize starship *after* zsh-vi-mode finishes rebuilding ZLE. Calling
+# `starship init` directly here causes zsh-vi-mode to re-wrap starship's
+# zle-keymap-select widget, leading to infinite recursion
+# ("maximum nested function level reached"). Deferring via zsh-vi-mode's
+# post-init hook ensures starship wraps the widget exactly once.
+zvm_after_init_commands+=('eval "$(starship init zsh)"')
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
