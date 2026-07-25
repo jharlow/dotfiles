@@ -1,7 +1,8 @@
 # Update 
 export DOTFILES_DIR="${HOME}/dotfiles"
 alias cellar="brew update &&
-  brew bundle install --cleanup --file=${DOTFILES_DIR}/brew/Brewfile --no-lock &&\
+  brew bundle install --file=${DOTFILES_DIR}/brew/Brewfile &&\
+  brew bundle cleanup --force --file=${DOTFILES_DIR}/brew/Brewfile &&\
   brew upgrade"
 
 # $EDITOR
@@ -37,9 +38,6 @@ alias mux=tmuxinator
 
 # Download file and save it with filename of remote file
 alias get="curl -O -L"
-
-# AWS functions
-alias watch-log="aws logs describe-log-groups | jq -r \".logGroups[] | .logGroupName | select(startswith(\\\"/aws/lambda/$FULL_NAME\\\"))\" | fzf | xargs -I _ aws logs tail _ --follow"
 
 # Github Cli shortcuts
 alias reqrev="gh pr edit --add-reviewer ammarv23 --add-reviewer tanveertanejabench"
@@ -94,6 +92,7 @@ eval "$(zoxide init zsh)"
 
 # fzf
 source <(fzf --zsh)
+
 # FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
@@ -115,6 +114,9 @@ alias gr='gitroot'
 
 # Starship prompt
 export STARSHIP_CONFIG=~/.starship.toml
+# Suppress transient "command timed out" WARNs printed when tmux-continuum
+# restores a session and many panes run git concurrently. Errors still show.
+export STARSHIP_LOG=error
 # Initialize starship *after* zsh-vi-mode finishes rebuilding ZLE. Calling
 # `starship init` directly here causes zsh-vi-mode to re-wrap starship's
 # zle-keymap-select widget, leading to infinite recursion
@@ -122,9 +124,15 @@ export STARSHIP_CONFIG=~/.starship.toml
 # post-init hook ensures starship wraps the widget exactly once.
 zvm_after_init_commands+=('eval "$(starship init zsh)"')
 
+# nvm (lazy-loaded). `node`/`npm` come from nodenv; nvm is only sourced on
+# first explicit use to avoid its ~250ms startup cost (nvm_auto).
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+nvm() {
+  unset -f nvm
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  nvm "$@"
+}
 
 # pnpm
 export PNPM_HOME="/Users/johnharlow/Library/pnpm"
