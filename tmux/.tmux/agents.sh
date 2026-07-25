@@ -1,36 +1,62 @@
 #!/usr/bin/env bash
-# claude-agents.sh — pick a tmux pane running a Claude Code or Codex CLI agent.
+# agents.sh — notify about or pick a tmux pane running an AI coding agent.
 #
 # Bound to `prefix + a` (see ~/.tmux.conf). Lists every pane whose *foreground*
-# process is a live `claude` or `codex` agent, shows each one's current status
-# (Working / Awaiting input / Idle), and jumps to the selected pane. Styled to
-# feel like the `prefix + s` session tree: fullscreen, list on the left, a live
-# preview of the pane on the right.
+# process is a live `claude`, `codex`, or `opencode` agent, shows each one's
+# current status (Working / Awaiting input / Idle), and jumps to the selected
+# pane. Styled to feel like the `prefix + s` session tree: fullscreen, list on
+# the left, a live preview of the pane on the right.
+#
+# When called as `agents.sh notify ready|input`, plays a short macOS system
+# sound. Claude Code, Codex, and opencode hooks use this mode; the default mode
+# opens the picker.
 #
 # Detection is layered:
-#   * "Is a live agent the active app here?"  -> authoritative. A claude/codex
-#     process must exist in the pane's process tree AND the pane's foreground
-#     command must not be a shell (so a backgrounded/exited agent that left a
-#     shell prompt is correctly ignored — pane titles linger, so we don't trust
-#     them for presence).
+#   * "Is a live agent the active app here?"  -> authoritative. A
+#     claude/codex/opencode process must exist in the pane's process tree AND
+#     the pane's foreground command must not be a shell (so a backgrounded/
+#     exited agent that left a shell prompt is correctly ignored — pane titles
+#     linger, so we don't trust them for presence).
 #   * "What's its status?"  -> heuristic, from the pane's live screen + title.
 #     The knobs to tune if a CLI changes its UI are STATUS_* and the title-byte
 #     check in pane_status().
+
+notify() {
+  local sound
+  case ${1:-ready} in
+    input) sound=/System/Library/Sounds/Ping.aiff ;;
+    *)     sound=/System/Library/Sounds/Glass.aiff ;;
+  esac
+
+  if command -v afplay >/dev/null 2>&1 && [[ -r $sound ]]; then
+    afplay -v 0.5 "$sound" >/dev/null 2>&1 &
+  else
+    # Terminal bell fallback for non-macOS hosts.
+    printf '\a' >/dev/tty 2>/dev/null || true
+  fi
+}
+
+if [[ ${1:-} == notify ]]; then
+  notify "${2:-ready}"
+  exit 0
+fi
 
 set -u
 export LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
 SHELLS='^-?(zsh|bash|fish|sh|dash|tcsh|ksh)$'
 # Status heuristics (ASCII-safe so they work regardless of the popup's locale).
-STATUS_AWAITING='Do you want|Allow (command|this)|Approve|Waiting for your| 1\. Yes| 2\. No|❯ 1\.'
+STATUS_AWAITING='Do you want|Allow (command|this|once|always)|Approve|Waiting for your| 1\. Yes| 2\. No|❯ 1\.|Select one answer|Select all answers'
 # Markers unlikely to appear in prose (spinner line only). Used for both agents.
 STATUS_WORKING='esc to interrupt|to interrupt|tokens\)'
 # Looser markers for codex, whose working signal isn't in the pane title.
 STATUS_WORKING_CODEX='Working|Thinking|Generating|Running'
+# opencode's working footer status text (English UI strings).
+STATUS_WORKING_OPENCODE='Thinking|Making edits|Running commands|Searching the (codebase|web)|Planning next steps|Considering next steps|Gathering (thoughts|context)|Delegating work|Exploring'
 
 # Single row template used for both the data rows and the header, so their
 # column separators line up exactly. First field is the status dot (width 1).
-ROW_FMT='%s %-14s │ %-6s │ %-18s │ %s'
+ROW_FMT='%s %-14s │ %-8s │ %-18s │ %s'
 printf -v HEADER "$ROW_FMT" ' ' 'STATUS' 'AGENT' 'LOCATION' 'TITLE'
 
 # --- gather panes (one tmux call; includes fg command + title) ---------------
@@ -48,14 +74,15 @@ psout=$(ps -axww -o pid=,ppid=,command=)
 declare -A ppid_of
 while read -r p pp _; do ppid_of[$p]=$pp; done <<<"$psout"
 
-declare -A agent_kind_of  # agent pid -> claude|codex
+declare -A agent_kind_of  # agent pid -> claude|codex|opencode
 while read -r p _ rest; do
-  [[ $rest == *claude-agents* ]] && continue
+  [[ $rest == *'agents.sh notify'* ]] && continue
   case " $rest " in
-    *" claude "*|*/claude" "*) agent_kind_of[$p]=claude ;;
-    *codex*)                   agent_kind_of[$p]=codex  ;;
+    *opencode*)                agent_kind_of[$p]=opencode ;;
+    *" claude "*|*/claude" "*) agent_kind_of[$p]=claude   ;;
+    *codex*)                   agent_kind_of[$p]=codex    ;;
   esac
-done < <(grep -iE '(^| |/)(claude|codex)( |$)' <<<"$psout")
+done < <(grep -iE '(^| |/)(claude|codex|opencode)( |$)' <<<"$psout")
 
 # pane shell pid -> pane id, for the ancestor walk.
 declare -A by_pid
@@ -86,6 +113,9 @@ pane_status() {
   if [[ $kind == codex ]] && grep -qE "$STATUS_WORKING_CODEX" <<<"$content"; then
     echo working; return
   fi
+  if [[ $kind == opencode ]] && grep -qE "$STATUS_WORKING_OPENCODE" <<<"$content"; then
+    echo working; return
+  fi
   echo idle
 }
 
@@ -112,7 +142,7 @@ for pid in "${!agent_kind_of[@]}"; do
 done
 
 if [[ -z $rows ]]; then
-  tmux display-message "No Claude or Codex agents running"
+  tmux display-message "No Claude, Codex, or opencode agents running"
   exit 0
 fi
 
