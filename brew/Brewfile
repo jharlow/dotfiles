@@ -30,7 +30,7 @@ brew 'fd'
 brew 'asciinema'
 brew 'awscli'
 brew 'mongosh'
-brew 'hyperfine
+brew 'hyperfine'
 
 ## Node.js
 brew 'node'
@@ -38,13 +38,13 @@ brew 'deno'
 brew 'pnpm'
 
 ## Tools
-cask 'docker'
+cask 'docker-desktop'
 brew 'lazydocker'
 brew 'postgresql'
 brew 'lynx'
 
 ## Fonts
-cask font-jetbrains-mono
+cask 'font-jetbrains-mono'
 
 # Apps
 
@@ -54,6 +54,8 @@ cask '1password-cli'
 
 ## Development
 cask 'ghostty'
+cask 'claude-code'
+cask 'anomalyco/tap/opencode'
 cask 'visual-studio-code'
 cask 'zed'
 cask 'cursor'
