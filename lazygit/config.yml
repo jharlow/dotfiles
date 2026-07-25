@@ -1,7 +1,6 @@
 os:
   # Make `e` (edit) use nvim, with proper terminal handoff + line jumping.
   editPreset: 'nvim'
-
 customCommands:
   # Rebind `o` (open) in the Files panel to open in nvim instead of the OS
   # default app (which was launching Xcode). `open` runs detached and can't
@@ -10,11 +9,11 @@ customCommands:
   - key: 'o'
     context: 'files'
     command: 'nvim -- {{.SelectedFile.Name}}'
-    subprocess: true
     description: 'Open file in nvim'
+    output: terminal
   # Same for files listed inside a commit.
   - key: 'o'
     context: 'commitFiles'
     command: 'nvim -- {{.SelectedCommitFile.Name}}'
-    subprocess: true
     description: 'Open file in nvim'
+    output: terminal
