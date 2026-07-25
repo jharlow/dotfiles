@@ -154,24 +154,24 @@ The only additional configuration:
 
 - Use the "Import snippets" command and navigate to `~/dotfiles/raycast/snippets.json`
 
-#### [Claude Code](https://claude.com/claude-code)
+#### Coding agents
 
-Claude Code configuration is split across two Stow packages:
+Coding agent configuration is split across Stow packages:
 
-- `claude/` is symlinked into `~/.claude` and holds `settings.json`, `statusline.sh`, custom subagents (`agents/`), and the MCP tooling (`mcp/`).
-- `agents/` is symlinked into `~/.agents`, the shared skills location used by all my coding agents. It holds the installed [skills](https://code.claude.com/docs/en/skills) and their `.skill-lock.json`. `make` also (re)creates the `~/.claude/skills/*` symlinks that point Claude Code at this shared location.
+- `claude/` is symlinked into `~/.claude` and holds Claude Code's `settings.json`, status line, and custom subagents.
+- `agents/` is symlinked into `~/.agents`, the shared skills and MCP location used by all my coding agents. It holds the installed [skills](https://code.claude.com/docs/en/skills), their `.skill-lock.json`, and portable MCP declarations.
 
-**Skills** are version-controlled directly, so they're present on a fresh machine after `make` — no re-install needed. New skills installed into `~/.agents/skills` land in the repo automatically (it's a symlink), so just commit them.
+**Skills** are version-controlled directly, so they're present on a fresh machine after `make` - no re-install needed. `make` links every shared skill into `~/.claude/skills` without replacing the agent's own built-in skills. New skills installed into `~/.agents/skills` land in the repo automatically (it's a symlink), so just commit them and rerun `make link_agent_skills`.
 
 **Custom subagents** are Markdown files in `claude/agents/`; drop a `<name>.md` in and it appears at `~/.claude/agents/<name>.md`.
 
-**MCP servers** can't be symlinked (user-scope servers live in `~/.claude.json`, which is machine-specific and private). Instead, declare them in `claude/mcp/servers.json` and apply them with:
+**MCP servers** shared by coding agents are declared in `agents/mcp/servers.json`. Apply them with:
 
 ```sh
-make claude-mcp
+make agent-mcp
 ```
 
-This pushes each server into Claude's user scope via `claude mcp add-json` and is safe to re-run. See `claude/mcp/servers.example.json` for the format (e.g. project-specific servers like a local devtools MCP). Requires the `claude` CLI and `jq`.
+Use `make claude-mcp` or `make opencode-mcp` to update only one client. See `agents/mcp/servers.example.json` for HTTP and stdio examples. The apply script requires `jq` and the corresponding agent CLI.
 
 ## Usage
 

@@ -1,0 +1,17 @@
+{
+  "_comment": "Portable MCP declarations shared by coding agents. Run `make agent-mcp` to apply them to Codex, Claude Code, and opencode.",
+  "mcpServers": {
+    "sightglass": {
+      "type": "http",
+      "url": "http://localhost:4444/api/mcp"
+    },
+    "buildkite": {
+      "type": "http",
+      "url": "https://mcp.buildkite.com/mcp"
+    },
+    "datadog": {
+      "type": "http",
+      "url": " https://mcp.datadoghq.com/api/unstable/mcp-server/mcp"
+    }
+  }
+}

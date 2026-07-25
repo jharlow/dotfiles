@@ -1,0 +1,5 @@
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "theme": "gruvbox",
+  "attention": { "enabled": true, "sound": true }
+}

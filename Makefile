@@ -9,29 +9,34 @@ stow: create_directories
 	@stow -t ~/.config/git gitconfig
 	@stow -t ~/.config/gh gh
 	@stow -t ~/.config/ghostty ghostty
+	@stow --no-folding -t ~/.config/opencode opencode
 	@stow -t "$(HOME)/Library/Application Support/lazygit" lazygit
 	@stow -t ~/.config/zed zed
-	@stow -t ~/.claude claude
 	@stow -t ~/.agents agents
-	@$(MAKE) --no-print-directory link_claude_skills
+	@stow -t ~/.claude claude
+	@$(MAKE) --no-print-directory link_agent_skills
 
-# Point Claude Code's skill dir at the shared, dotfiles-managed ~/.agents/skills.
-# Claude reads ~/.claude/skills/<name>; ~/.agents/skills is itself stowed to
-# ~/dotfiles/agents/skills, so these links resolve into the repo.
-.PHONY: link_claude_skills
-link_claude_skills:
+# Point each coding agent's skill directory at the shared, dotfiles-managed
+# ~/.agents/skills. Per-skill links preserve agent-owned directories.
+.PHONY: link_agent_skills
+link_agent_skills:
 	@mkdir -p ~/.claude/skills
 	@for skill in $(CURDIR)/agents/skills/*/; do \
 		name=$$(basename $$skill); \
 		ln -sfn ../../.agents/skills/$$name $(HOME)/.claude/skills/$$name; \
 	done
 
-# Apply user-scope MCP servers declared in claude/mcp/servers.json.
-# Separate from `stow` because it needs the `claude` CLI and writes to
-# ~/.claude.json (which can't be symlinked). Safe to re-run.
-.PHONY: claude-mcp
+# Apply the shared MCP declarations to both coding agents. This remains
+# separate from `stow` because both CLIs maintain additional local state.
+.PHONY: agent-mcp claude-mcp opencode-mcp
+agent-mcp:
+	@$(HOME)/dotfiles/agents/mcp/apply.sh all
+
 claude-mcp:
-	@$(HOME)/dotfiles/claude/mcp/apply.sh
+	@$(HOME)/dotfiles/agents/mcp/apply.sh claude
+
+opencode-mcp:
+	@$(HOME)/dotfiles/agents/mcp/apply.sh opencode
 
 .PHONY: unstow
 unstow:
@@ -39,6 +44,7 @@ unstow:
 	@stow -D -t ~/.config/tmuxinator tmuxinator
 	@stow -D -t ~/.config/nvim nvim
 	@stow -D -t ~/.config/git gitconfig
+	@stow -D -t ~/.config/opencode opencode
 	@stow -D -t ~/.config/zed zed
 	@stow -D -t "$(HOME)/Library/Application Support/lazygit" lazygit
 	@stow -D -t ~/.claude claude
@@ -55,6 +61,7 @@ create_directories:
 	@mkdir -p ~/.config/git
 	@mkdir -p ~/.config/gh
 	@mkdir -p ~/.config/ghostty
+	@mkdir -p ~/.config/opencode
 	@mkdir -p "$(HOME)/Library/Application Support/lazygit"
 	@mkdir -p ~/.config/zed
 	@mkdir -p ~/.claude
