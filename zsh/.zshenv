@@ -6,6 +6,9 @@
 
 export DOTFILES_DIR="${HOME}/dotfiles"
 
+# Enable opencode's built-in websearch tool (Exa AI) for non-OpenCode providers
+export OPENCODE_ENABLE_EXA=1
+
 # If zhs/secrets-out.zsh does not exist, create it.
 secrets_path="${DOTFILES_DIR}/zsh/.secrets.zsh"
 secrets_UNPROTECTED_path="${DOTFILES_DIR}/zsh/.secrets-UNPROTECTED.zsh"
