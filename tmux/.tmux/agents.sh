@@ -17,9 +17,11 @@
 #     the pane's foreground command must not be a shell (so a backgrounded/
 #     exited agent that left a shell prompt is correctly ignored — pane titles
 #     linger, so we don't trust them for presence).
-#   * "What's its status?"  -> heuristic, from the pane's live screen + title.
-#     The knobs to tune if a CLI changes its UI are STATUS_* and the title-byte
-#     check in pane_status().
+#   * "What's its status?"  -> authoritative for opencode, which publishes its
+#     own state from a plugin (see the OC_STATE_DIR block); heuristic for
+#     claude/codex, read from the pane's live screen + title. The knobs to tune
+#     if one of those CLIs changes its UI are STATUS_* and the title-byte check
+#     in pane_status().
 
 notify() {
   local sound
@@ -97,9 +99,38 @@ owning_pane() {
   done
 }
 
+# --- authoritative opencode status -------------------------------------------
+# opencode publishes its real state (see ~/.config/opencode/plugins/status.ts)
+# instead of making us guess from the rendered screen. Each running instance
+# owns one key=value file named after its pid. Anything we can't resolve here
+# falls through to the STATUS_* heuristics below, so an opencode built without
+# the plugin still shows up, just less reliably.
+OC_STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/opencode/agents"
+declare -A oc_status  # pane id -> awaiting|working|idle
+for f in "$OC_STATE_DIR"/*.state; do
+  [[ -f $f ]] || continue   # no glob match: the literal pattern
+  st= pane= pid=
+  while IFS='=' read -r k v; do
+    case $k in pid) pid=$v ;; pane) pane=$v ;; state) st=$v ;; esac
+  done <"$f"
+  # A SIGKILLed instance never gets to delete its file, so the pid must still be
+  # live or a finished session would read as "Working" forever. Checking against
+  # the ps snapshot avoids a fork per file.
+  [[ -n $st && -n $pid && -n ${ppid_of[$pid]:-} ]] || continue
+  # Prefer the ancestor walk (survives a pane id that was recorded before a tmux
+  # server restart); fall back to the $TMUX_PANE the instance started with.
+  id=$(owning_pane "$pid"); [[ -z $id ]] && id=$pane
+  [[ -n ${pane_pid[$id]:-} ]] || continue
+  oc_status[$id]=$st
+done
+
 # Status for a confirmed-active agent pane.
 pane_status() {
   local id=$1 kind=$2 content b3
+  # opencode reports its own state, so never second-guess it with screen text.
+  if [[ $kind == opencode && -n ${oc_status[$id]:-} ]]; then
+    printf '%s\n' "${oc_status[$id]}"; return
+  fi
   # Claude animates its pane title with a braille spinner *only while running*,
   # so a braille title is an authoritative "working" — it beats content markers
   # (a real input prompt stops the spinner, so the title won't be braille then).
