@@ -41,6 +41,7 @@ alias get="curl -O -L"
 
 # Github Cli shortcuts
 alias reqrev="gh pr edit --add-reviewer ammarv23 --add-reviewer tanveertanejabench"
+alias prl="${DOTFILES_DIR}/zsh/prl.sh"
 
 ## COMPLETIONS
 # Load default completions
