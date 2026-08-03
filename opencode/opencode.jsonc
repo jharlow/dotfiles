@@ -18,6 +18,11 @@
   "lsp": true,
   "permission": {
     "websearch": "allow",
+    "external_directory": {
+      // /tmp is a symlink to /private/tmp on macOS, so allow both forms
+      "/tmp/**": "allow",
+      "/private/tmp/**": "allow",
+    },
   },
   "username": "John",
 }
