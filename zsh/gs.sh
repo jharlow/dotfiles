@@ -196,7 +196,13 @@ run_fzf_action() {
 case ${1:-} in
   co) set -- checkout "${@:2}" ;;
   v) set -- view "${@:2}" ;;
-  r) set -- rebase "${@:2}" ;;
+  r)
+    if [[ ${2:-} == -u ]]; then
+      set -- rebase --upstack "${@:3}"
+    else
+      set -- rebase "${@:2}"
+    fi
+    ;;
   a) set -- add "${@:2}" ;;
   i) set -- init "${@:2}" ;;
   su) set -- submit "${@:2}" ;;
@@ -208,19 +214,259 @@ case ${1:-} in
   d) set -- down "${@:2}" ;;
 esac
 
-if [[ ${1:-} != view && ${1:-} != __fzf-action && ${1:-} != __rows ]] || \
+if [[ ${1:-} != view && ${1:-} != checkout && ${1:-} != __fzf-action && ${1:-} != __rows && \
+  ${1:-} != __checkout-rows && ${1:-} != __checkout-preview && ${1:-} != __checkout-filter && \
+  ${1:-} != __checkout-toggle ]] || \
+  [[ ${1:-} == checkout && $# -ne 1 ]] || \
   [[ ${1:-} == view && $# -ne 1 ]]; then
   exec gh stack "$@"
 fi
 
 for dependency in gh jq fzf curl perl; do
   if ! command -v "$dependency" >/dev/null 2>&1; then
-    print -u2 -r -- "gs view: $dependency is required"
+    print -u2 -r -- "gs: $dependency is required"
     exit 1
   fi
 done
 
 export GH_PROMPT_DISABLED=1
+
+checkout_status_bar() {
+  local -i merged=$1 open=$2 closed=$3 unpushed=$4 total boxes assigned i best
+  local -a counts scaled remainders colors
+  counts=($merged $open $closed $unpushed)
+  colors=('\033[35m' '\033[32m' '\033[31m' '\033[90m')
+  total=$((merged + open + closed + unpushed))
+  (( total == 0 )) && { printf '—'; return; }
+
+  if (( total <= 5 )); then
+    scaled=(${counts[@]})
+  else
+    scaled=(0 0 0 0)
+    remainders=(0 0 0 0)
+    assigned=0
+    for i in {1..4}; do
+      scaled[i]=$((counts[i] * 5 / total))
+      remainders[i]=$((counts[i] * 5 % total))
+      assigned=$((assigned + scaled[i]))
+    done
+    while (( assigned < 5 )); do
+      best=1
+      for i in {2..4}; do
+        (( remainders[i] > remainders[best] )) && best=$i
+      done
+      scaled[best]=$((scaled[best] + 1))
+      remainders[best]=-1
+      assigned=$((assigned + 1))
+    done
+  fi
+
+  for i in {1..4}; do
+    (( scaled[i] > 0 )) && printf "${colors[i]}%0.s▆\033[0m" {1..${scaled[i]}}
+    boxes=$((boxes + scaled[i]))
+  done
+  (( boxes < 5 )) && printf '%*s' $((5 - boxes)) ''
+}
+
+truncate_checkout_cell() {
+  local value=$1
+  local -i width=$2
+  if (( ${#value} > width )); then
+    printf '%s…' "${value[1,$((width - 1))]}"
+  else
+    printf '%s' "$value"
+  fi
+}
+
+load_checkout_rows() {
+  local git_dir stack_file local_json remote_json repo raw
+  local number summary base merged open closed unpushed type created target branches status_bar display search_padding
+
+  git_dir="$(git rev-parse --git-dir 2>/dev/null)" || {
+    print -u2 -r -- 'gs checkout: not a git repository'
+    return 1
+  }
+  stack_file="${git_dir}/gh-stack"
+  [[ -f $stack_file ]] && local_json="$(command cat "$stack_file")" || local_json='{"stacks":[]}'
+  repo="$(gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null)" || repo=''
+  remote_json='[]'
+  if [[ -n $repo ]]; then
+    remote_json="$(run_with_timeout 20 gh api "repos/${repo}/stacks" 2>/dev/null)" || remote_json='[]'
+  fi
+
+  raw="$(jq -nr --argjson local "$local_json" --argjson remote "$remote_json" '
+    def merged: (.merged_at // "") != "";
+    def age:
+      if . == null or . == "" then "—"
+      else ((now - fromdateiso8601) | floor) as $s
+      | if $s < 60 then "just now"
+        elif $s < 3600 then "\($s / 60 | floor)m ago"
+        elif $s < 86400 then "\($s / 3600 | floor)h ago"
+        elif $s < 604800 then "\($s / 86400 | floor)d ago"
+        elif $s < 2592000 then "\($s / 604800 | floor)w ago"
+        elif $s < 31536000 then "\($s / 2592000 | floor)mo ago"
+        else "\($s / 31536000 | floor)y ago" end
+      end;
+    def summary($branches):
+      if ($branches | length) == 0 then ""
+      elif ($branches | length) == 1 then $branches[0]
+      else "\($branches[0])...\($branches[-1])" end;
+    def remote_status($prs):
+      [($prs | map(select(merged)) | length),
+       ($prs | map(select((merged | not) and .state == "open")) | length),
+       ($prs | map(select((merged | not) and .state == "closed")) | length), 0];
+    def local_status($stack; $match):
+      reduce ($stack.branches[]?) as $branch ([0,0,0,0];
+        if $branch.pullRequest == null then .[3] += 1
+        else ($match.pull_requests // [] | map(select(.number == $branch.pullRequest.number)) | first) as $pr
+        | if $pr != null then
+            if ($pr | merged) then .[0] += 1
+            elif $pr.state == "closed" then .[2] += 1
+            else .[1] += 1 end
+          elif ($branch.pullRequest.merged // false) then .[0] += 1
+          else .[1] += 1 end
+        end);
+    def remote_match($stack):
+      $remote | map(select(
+        (($stack.number // 0) != 0 and .number == $stack.number) or
+        (($stack.id // "") != "" and (.id | tostring) == $stack.id)
+      )) | first;
+    def local_row($stack):
+      remote_match($stack) as $match
+      | [$stack.branches[]?.branch] as $branches
+      | local_status($stack; $match) as $status
+      | select(($status[1] + $status[2] + $status[3]) > 0)
+      | (($stack.branches | reverse | map(select((.pullRequest.merged // false) | not)) | first).branch // $branches[-1]) as $target
+      | [($match.number // $stack.number // 0), summary($branches),
+         ($match.base.ref // $stack.trunk.branch // ""), $status[], "Local",
+         (($match.created_at // null) | age), $target, ($branches | join("\u001f"))];
+    def remote_row($stack):
+      [$stack.pull_requests[]?.head.ref] as $branches
+      | remote_status($stack.pull_requests // []) as $status
+      | select(($branches | length) > 0 and ($status[1] + $status[2] + $status[3]) > 0)
+      | [$stack.number, summary($branches), ($stack.base.ref // ""), $status[], "Remote",
+         (($stack.created_at // null) | age), ($stack.number | tostring), ($branches | join("\u001f"))];
+    [($local.stacks[]? | local_row(.)),
+     ($remote[]? as $r
+       | select(any($local.stacks[]?;
+           (((.number // 0) != 0 and .number == $r.number) or
+            ((.id // "") != "" and .id == ($r.id | tostring)))) | not)
+       | remote_row($r))]
+    | sort_by(if .[0] == 0 then -2147483648 else -.[0] end)
+    | .[] | @tsv
+  ')" || return 1
+
+  printf -v search_padding '%*s' 512 ''
+  while IFS=$'\t' read -r number summary base merged open closed unpushed type created target branches; do
+    [[ -z $target ]] && continue
+    [[ $number == 0 ]] && number='—'
+    summary="$(truncate_checkout_cell "$summary" 42)"
+    base="$(truncate_checkout_cell "$base" 18)"
+    status_bar="$(checkout_status_bar "$merged" "$open" "$closed" "$unpushed")"
+    printf -v display '%-5s %-42s %-18s %s  %-6s %-10s' "$number" "$summary" "$base" "$status_bar" "$type" "$created"
+    display+="${search_padding}${branches//$'\x1f'/ }"
+    printf '%s\t%s\t%s\t%s\t%s\n' "$display" "$target" "$base" "$branches" "$type"
+  done <<<"$raw"
+}
+
+checkout_column_header='      #     Branches                                   Base               Status Type   Created'
+
+if [[ ${1:-} == __checkout-rows ]]; then
+  load_checkout_rows
+  exit $?
+fi
+
+if [[ ${1:-} == __checkout-preview ]]; then
+  query=${4:-}
+  typeset -a preview_branches matched_branches
+  preview_branches=("${(@f)$(print -rn -- "${3:-}" | tr '\037' '\n')}")
+  if [[ -n $query ]]; then
+    matched_branches=("${(@f)$(printf '%s\n' "${preview_branches[@]}" | fzf --exact --filter="$query")}")
+  fi
+
+  print -r -- "(${2:-})"
+  for branch in "${preview_branches[@]}"; do
+    print -r -- '  ↑'
+    if (( ${matched_branches[(Ie)$branch]} )); then
+      printf '\033[1;33m%s\033[0m\n' "$branch"
+    else
+      print -r -- "$branch"
+    fi
+  done
+  exit 0
+fi
+
+if [[ ${1:-} == __checkout-filter ]]; then
+  mode=${2:-All}
+  printf '%s\n' "$checkout_column_header"
+  while IFS=$'\t' read -r display target base branches type; do
+    [[ $mode == All || $type == $mode ]] && printf '%s\t%s\t%s\t%s\t%s\n' "$display" "$target" "$base" "$branches" "$type"
+  done <"${3:-/dev/null}"
+  exit 0
+fi
+
+if [[ ${1:-} == __checkout-toggle ]]; then
+  mode=${2:-All}
+  [[ ${FZF_BORDER_LABEL:-All} == $mode ]] && mode=All
+  printf 'reload(%s __checkout-filter %s %s)+change-border-label(%s)\n' \
+    "${(q)script_dir}/gs.sh" "$mode" "${(q)3}" "$mode"
+  exit 0
+fi
+
+if [[ ${1:-} == checkout ]]; then
+  checkout_rows_file="$(mktemp)" || exit 1
+  if ! run_function_with_spinner 'Loading stacks' load_checkout_rows >"$checkout_rows_file"; then
+    command rm -f "$checkout_rows_file"
+    exit 1
+  fi
+  if [[ ! -s $checkout_rows_file ]]; then
+    command rm -f "$checkout_rows_file"
+    print -r -- 'No stacks available to check out'
+    exit 0
+  fi
+  trap 'command rm -f "$checkout_rows_file"; cancel' INT TERM HUP
+  checkout_header='NORMAL | Enter/c checkout | i search | j/k navigate | l local | r remote | q quit'
+  checkout_insert_header='INSERT | Esc normal | Enter checkout'
+
+  selection="$("$script_dir/gs.sh" __checkout-filter All "$checkout_rows_file" | fzf \
+    --ansi \
+    --border \
+    --border-label='All' \
+    --cycle \
+    --delimiter=$'\t' \
+    --disabled \
+    --exact \
+    --header="$checkout_header" \
+    --header-lines=1 \
+    --no-input \
+    --bind='double-click:ignore' \
+    --bind="alt-i:show-input+enable-search+change-prompt(INSERT> )+change-header($checkout_insert_header)" \
+    --bind="esc:disable-search+hide-input+change-header($checkout_header)" \
+    --bind='enter:accept' \
+    --bind='i:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-i)" || echo put)' \
+    --bind='j:transform([ "$FZF_INPUT_STATE" != enabled ] && echo down || echo put)' \
+    --bind='k:transform([ "$FZF_INPUT_STATE" != enabled ] && echo up || echo put)' \
+    --bind='l:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-l)" || echo put)' \
+    --bind='r:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-r)" || echo put)' \
+    --bind='c:transform([ "$FZF_INPUT_STATE" != enabled ] && echo accept || echo put)' \
+    --bind='q:transform([ "$FZF_INPUT_STATE" != enabled ] && echo abort || echo put)' \
+    --bind="alt-l:transform(${(q)script_dir}/gs.sh __checkout-toggle Local ${(q)checkout_rows_file})" \
+    --bind="alt-r:transform(${(q)script_dir}/gs.sh __checkout-toggle Remote ${(q)checkout_rows_file})" \
+    --no-hscroll \
+    --no-multi \
+    --no-sort \
+    --preview="${(q)script_dir}/gs.sh __checkout-preview {3} {4} {q}" \
+    --preview-window='up,70%,wrap' \
+    --with-nth=1)"
+  result=$?
+  command rm -f "$checkout_rows_file"
+  (( result != 0 )) && exit 0
+
+  target=${${selection#*$'\t'}%%$'\t'*}
+  [[ -z $target ]] && exit 0
+  run_with_spinner "Checking out stack" gh stack checkout "$target"
+  exit $?
+fi
 
 message=''
 typeset -a rows
