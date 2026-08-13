@@ -129,6 +129,10 @@ run_fzf_action() {
       label='Copying stack links'
       success='Copied stack links'
       ;;
+    refresh)
+      label='Updating stack'
+      success='Stack updated'
+      ;;
     *) return 2 ;;
   esac
 
@@ -155,10 +159,13 @@ run_fzf_action() {
     draft) run_with_timeout 30 gh pr ready --undo "$target" >"$output_file" 2>&1 ;;
     view) run_with_timeout 30 gh pr view "$target" --web >"$output_file" 2>&1 ;;
     yank) run_with_timeout 60 "$script_dir/prl.sh" >"$output_file" 2>&1 ;;
+    refresh) run_with_timeout 30 "$script_dir/gs.sh" __rows >"$output_file" 2>&1 ;;
   esac
   result=$?
 
-  if (( result == 0 )) && [[ $action == ready || $action == draft ]]; then
+  if (( result == 0 )) && [[ $action == refresh ]]; then
+    rows_file=$output_file
+  elif (( result == 0 )) && [[ $action == ready || $action == draft ]]; then
     rows_file="$(mktemp)" || result=1
     if (( result == 0 )); then
       "$script_dir/gs.sh" __rows >"$rows_file" 2>>"$output_file" || result=$?
@@ -170,7 +177,7 @@ run_fzf_action() {
   active_spinner_pid=''
 
   if (( result == 0 )); then
-    if [[ $action == ready || $action == draft ]]; then
+    if [[ $action == ready || $action == draft || $action == refresh ]]; then
       fzf_notify "reload(command cat ${(q)rows_file})+change-footer(✓ ${success})"
     else
       fzf_notify "change-footer(✓ ${success})"
@@ -221,7 +228,7 @@ printf -v column_header '     %-7s %-10s %-4s %-4s %-4s %-48s %s' 'PR' 'status' 
 
 load_rows() {
   local stack_json first_url repo_path repo owner name graphql response prs_json
-  local branch number url current title state draft decision merge_state approved ci comments
+  local branch number url current title state draft decision merge_state approved ci_state comments
   local dot pr_status marker display approved_dot ci_dot comments_dot approved_cell ci_cell comments_cell
   local downstack_blocked=false
 
@@ -253,7 +260,7 @@ load_rows() {
   fi
 
   rows=()
-  while IFS=$'\t' read -r branch number url current title state draft decision merge_state approved ci comments; do
+  while IFS=$'\t' read -r branch number url current title state draft decision merge_state approved ci_state comments; do
     marker=' '
     [[ $current == true ]] && marker='*'
 
@@ -264,7 +271,11 @@ load_rows() {
     fi
 
     [[ $approved == true ]] && approved_dot='🟢' || approved_dot='🔴'
-    [[ $ci == true ]] && ci_dot='🟢' || ci_dot='🔴'
+    case $ci_state in
+      SUCCESS) ci_dot='🟢' ;;
+      PENDING|EXPECTED) ci_dot='🟡' ;;
+      *) ci_dot='🔴' ;;
+    esac
     [[ $comments == true ]] && comments_dot='🟢' || comments_dot='🔴'
     approved_cell=" ${approved_dot} "
     ci_cell=" ${ci_dot} "
@@ -311,7 +322,7 @@ load_rows() {
         ($pr.reviewDecision // "-"),
         ($pr.mergeStateStatus // "-"),
         (($pr.reviewDecision // "") == "APPROVED"),
-        (($pr.commits.nodes[-1].commit.statusCheckRollup.state // "") == "SUCCESS"),
+        ($pr.commits.nodes[-1].commit.statusCheckRollup.state // "-"),
         (([$pr.reviewThreads.nodes[]? | select(.isResolved == false)] | length) == 0
           and (($pr.reviewThreads.pageInfo.hasNextPage // false) == false))
       ]
@@ -338,7 +349,7 @@ fi
 while true; do
   run_function_with_spinner 'Loading stack' load_rows || exit 1
 
-  normal_header='NORMAL | Enter/c checkout | i search'
+  normal_header='NORMAL | Enter/c checkout | i search | u update'
   normal_header+=$'\n''r ready | d draft | m merge stack'
   normal_header+=$'\n''y yank | v view web | q quit'
   [[ -n $message ]] && normal_header+=$'\n'"$message"
@@ -360,9 +371,12 @@ while true; do
     --bind="esc:disable-search+hide-input+change-header($normal_header)" \
     --bind='enter:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-c)" || echo ignore)' \
     --bind='i:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-i)" || echo put)' \
+    --bind='j:transform([ "$FZF_INPUT_STATE" != enabled ] && echo down || echo put)' \
+    --bind='k:transform([ "$FZF_INPUT_STATE" != enabled ] && echo up || echo put)' \
     --bind='c:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-c)" || echo put)' \
     --bind='r:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-r)" || echo put)' \
     --bind='d:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-d)" || echo put)' \
+    --bind='u:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-u)" || echo put)' \
     --bind='m:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-m)" || echo put)' \
     --bind='y:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-y)" || echo put)' \
     --bind='v:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-v)" || echo put)' \
@@ -370,6 +384,7 @@ while true; do
     --bind='alt-c:print(c)+accept,alt-m:print(m)+accept,alt-q:abort' \
     --bind="alt-r:execute-silent(${(q)script_dir}/gs.sh __fzf-action ready {2} </dev/null >/dev/null 2>&1 &)" \
     --bind="alt-d:execute-silent(${(q)script_dir}/gs.sh __fzf-action draft {2} </dev/null >/dev/null 2>&1 &)" \
+    --bind="alt-u:execute-silent(${(q)script_dir}/gs.sh __fzf-action refresh </dev/null >/dev/null 2>&1 &)" \
     --bind="alt-v:execute-silent(${(q)script_dir}/gs.sh __fzf-action view {2} </dev/null >/dev/null 2>&1 &)" \
     --bind="alt-y:execute-silent(${(q)script_dir}/gs.sh __fzf-action yank </dev/null >/dev/null 2>&1 &)" \
     --id-nth=6 \
