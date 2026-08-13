@@ -2,6 +2,46 @@
 
 setopt pipefail
 
+spinner_pid=''
+
+stop_spinner() {
+  if [[ -n $spinner_pid ]]; then
+    kill "$spinner_pid" 2>/dev/null
+    wait "$spinner_pid" 2>/dev/null
+    spinner_pid=''
+  fi
+}
+
+start_spinner() {
+  (
+    local frame_index=1
+    local -a frames=('|' '/' '-' $'\\')
+    while true; do
+      printf '\r\033[K[%s] Copying PR links' "${frames[frame_index]}" >&2
+      frame_index=$((frame_index % ${#frames} + 1))
+      sleep 0.1
+    done
+  ) &
+  spinner_pid=$!
+}
+
+die() {
+  stop_spinner
+  printf '\r\033[K' >&2
+  print -u2 -r -- "$1"
+  exit "${2:-1}"
+}
+
+cancel() {
+  trap - INT TERM HUP
+  stop_spinner
+  printf '\r\033[K' >&2
+  exit 130
+}
+
+trap cancel INT TERM HUP
+trap stop_spinner EXIT
+
 usage() {
   print -r -- "Usage: prl [-m|--markdown]"
 }
@@ -38,41 +78,39 @@ case "${1:-}" in
     exit 0
     ;;
   *)
-    usage >&2
-    exit 2
+    die "$(usage)" 2
     ;;
 esac
 
 if (( $# > 1 )); then
-  usage >&2
-  exit 2
+  die "$(usage)" 2
 fi
 
 for dependency in gh jq osascript; do
   if ! command -v "$dependency" >/dev/null 2>&1; then
-    print -u2 -r -- "prl: $dependency is required"
-    exit 1
+    die "prl: $dependency is required"
   fi
 done
 
-if ! stack_json="$(gh stack view --json)"; then
-  print -u2 -r -- "prl: unable to read the current gh stack"
-  exit 1
-fi
+start_spinner
 
-if ! stack_prs="$(jq -r '
-  .branches[]
-  | select(.pr != null)
-  | [.pr.number, .pr.url]
-  | @tsv
-' <<<"$stack_json")"; then
-  print -u2 -r -- "prl: unable to parse gh stack output"
-  exit 1
+stack_prs=''
+if stack_json="$(gh stack view --json 2>/dev/null)"; then
+  if ! stack_prs="$(jq -r '
+    .branches[]
+    | select(.pr != null)
+    | [.pr.number, .pr.url]
+    | @tsv
+  ' <<<"$stack_json")"; then
+    die 'prl: unable to parse gh stack output'
+  fi
 fi
 
 if [[ -z $stack_prs ]]; then
-  print -u2 -r -- "prl: no pull requests found in the current stack"
-  exit 1
+  if ! branch_pr_json="$(gh pr view --json number,url 2>/dev/null)" || \
+    ! stack_prs="$(jq -r '[.number, .url] | @tsv' <<<"$branch_pr_json")"; then
+    die 'prl: no pull requests found in the current stack or for the current branch'
+  fi
 fi
 
 typeset -a pr_numbers pr_urls pr_repos pr_titles pr_states pr_drafts pr_decisions pr_merge_states pr_additions pr_deletions
@@ -81,20 +119,17 @@ while IFS=$'\t' read -r number url; do
   [[ -z $number || -z $url ]] && continue
 
   if [[ $url != */pull/* ]]; then
-    print -u2 -r -- "prl: unsupported pull request URL: $url"
-    exit 1
+    die "prl: unsupported pull request URL: $url"
   fi
 
   repo_path="${url#*://*/}"
   repo="${repo_path%/pull/*}"
   if [[ -z $repo || $repo == "$repo_path" ]]; then
-    print -u2 -r -- "prl: unable to determine repository from: $url"
-    exit 1
+    die "prl: unable to determine repository from: $url"
   fi
 
   if ! pr_json="$(gh pr view "$url" --json title,state,isDraft,reviewDecision,mergeStateStatus,additions,deletions)"; then
-    print -u2 -r -- "prl: unable to read pull request: $url"
-    exit 1
+    die "prl: unable to read pull request: $url"
   fi
 
   if ! title="$(jq -r '.title' <<<"$pr_json")" || \
@@ -104,8 +139,7 @@ while IFS=$'\t' read -r number url; do
     ! merge_state="$(jq -r '.mergeStateStatus // ""' <<<"$pr_json")" || \
     ! additions="$(jq -r '.additions // 0' <<<"$pr_json")" || \
     ! deletions="$(jq -r '.deletions // 0' <<<"$pr_json")"; then
-    print -u2 -r -- "prl: unable to parse pull request: $url"
-    exit 1
+    die "prl: unable to parse pull request: $url"
   fi
 
   pr_numbers+=("$number")
@@ -121,8 +155,7 @@ while IFS=$'\t' read -r number url; do
 done <<< "$stack_prs"
 
 if (( ${#pr_numbers} == 0 )); then
-  print -u2 -r -- "prl: no pull requests found in the current stack"
-  exit 1
+  die 'prl: no pull requests found in the current stack'
 fi
 
 all_same_repo=true
@@ -191,9 +224,10 @@ done
 html_output+='</body></html>'
 
 if ! copy_to_clipboard "$output" "$html_output"; then
-  print -u2 -r -- "prl: unable to copy links to the clipboard"
-  exit 1
+  die 'prl: unable to copy links to the clipboard'
 fi
 
-print -rn -- "$output"
-print -u2 -r -- "prl: copied ${#pr_numbers} PR link(s) to the clipboard"
+stop_spinner
+printf '\r\033[K✓ Copied %d PR link(s)' "${#pr_numbers}" >&2
+sleep 1
+printf '\r\033[K' >&2

@@ -40,7 +40,10 @@ alias mux=tmuxinator
 alias get="curl -O -L"
 
 # Github Cli shortcuts
+alias gh="${DOTFILES_DIR}/zsh/gh.sh"
 alias reqrev="gh pr edit --add-reviewer ammarv23 --add-reviewer tanveertanejabench"
+
+alias gs="${DOTFILES_DIR}/zsh/gs.sh"
 alias prl="${DOTFILES_DIR}/zsh/prl.sh"
 
 ## COMPLETIONS
