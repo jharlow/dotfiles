@@ -13,6 +13,18 @@
       "type": "remote",
       "url": "http://localhost:4444/api/mcp",
     },
+    "slack": {
+      "type": "remote",
+      "url": "https://mcp.slack.com/mcp",
+      "oauth": {
+        "clientId": "1601185624273.8899143856786",
+        "redirectUri": "http://localhost:3118/callback",
+      },
+    },
+  },
+  "agent": {
+    "plan": { "model": "openai/gpt-5.6-terra", "variant": "max" },
+    "explore": { "model": "openai/gpt-5.6-luna", "variant": "max" },
   },
   "formatter": true,
   "lsp": true,
