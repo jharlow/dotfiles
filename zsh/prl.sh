@@ -168,6 +168,7 @@ done
 
 output=''
 html_output='<!doctype html><html><body>'
+downstack_blocked=false
 for ((index = 1; index <= ${#pr_numbers}; index++)); do
   number="${pr_numbers[index]}"
   url="${pr_urls[index]}"
@@ -189,13 +190,20 @@ for ((index = 1; index <= ${#pr_numbers}; index++)); do
   elif [[ $decision == CHANGES_REQUESTED ]]; then
     emoji='🟠'
     shortcode=':large_orange_circle:'
-  elif [[ $decision == APPROVED || $merge_state == CLEAN ]]; then
+  elif [[ $merge_state == BLOCKED ]]; then
+    emoji='🟡'
+    shortcode=':large_yellow_circle:'
+  elif [[ $downstack_blocked == true ]]; then
+    emoji='🔴'
+    shortcode=':red_circle:'
+  elif [[ $merge_state == CLEAN ]]; then
     emoji='🟢'
     shortcode=':large_green_circle:'
   else
     emoji='🔵'
     shortcode=':large_blue_circle:'
   fi
+  [[ $merge_state == BLOCKED ]] && downstack_blocked=true
 
   if [[ $all_same_repo == true ]]; then
     label="#${number} ${title}"

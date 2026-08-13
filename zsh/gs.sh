@@ -217,10 +217,13 @@ export GH_PROMPT_DISABLED=1
 
 message=''
 typeset -a rows
+printf -v column_header '     %-7s %-10s %-4s %-4s %-4s %-48s %s' 'PR' 'status' '[ap]' '[ci]' '[co]' 'title' 'branch'
 
 load_rows() {
   local stack_json first_url repo_path repo owner name graphql response prs_json
-  local branch number url current title state draft decision merge_state dot pr_status marker display
+  local branch number url current title state draft decision merge_state approved ci comments
+  local dot pr_status marker display approved_dot ci_dot comments_dot approved_cell ci_cell comments_cell
+  local downstack_blocked=false
 
   if ! stack_json="$(run_with_timeout 20 gh stack view --json)"; then
     print -u2 -r -- 'gs view: loading the stack failed or timed out'
@@ -238,7 +241,7 @@ load_rows() {
     graphql='query($owner: String!, $name: String!) { repository(owner: $owner, name: $name) {'
 
     for number in "${(@f)$(jq -r '.branches[].pr.number // empty' <<<"$stack_json")}"; do
-      graphql+=" pr${number}: pullRequest(number: ${number}) { number url title state isDraft reviewDecision mergeStateStatus }"
+      graphql+=" pr${number}: pullRequest(number: ${number}) { number url title state isDraft reviewDecision mergeStateStatus commits(last: 1) { nodes { commit { statusCheckRollup { state } } } } reviewThreads(first: 100) { nodes { isResolved } pageInfo { hasNextPage } } }"
     done
     graphql+=' } }'
 
@@ -250,15 +253,22 @@ load_rows() {
   fi
 
   rows=()
-  while IFS=$'\t' read -r branch number url current title state draft decision merge_state; do
+  while IFS=$'\t' read -r branch number url current title state draft decision merge_state approved ci comments; do
     marker=' '
     [[ $current == true ]] && marker='*'
 
     if [[ -z $url ]]; then
-      printf -v display '%s · %-7s %-8s %-48s %s' "$marker" '-' 'no PR' '' "$branch"
+      printf -v display '%s ·  %-7s %-10s %s %s %s %-48s %s' "$marker" '-' 'no PR' ' 🔴 ' ' 🔴 ' ' 🔴 ' '' "$branch"
       rows+=("${display}"$'\t-\tNONE\tfalse\t-\t'"${branch}")
       continue
     fi
+
+    [[ $approved == true ]] && approved_dot='🟢' || approved_dot='🔴'
+    [[ $ci == true ]] && ci_dot='🟢' || ci_dot='🔴'
+    [[ $comments == true ]] && comments_dot='🟢' || comments_dot='🔴'
+    approved_cell=" ${approved_dot} "
+    ci_cell=" ${ci_dot} "
+    comments_cell=" ${comments_dot} "
 
     if [[ $state == MERGED ]]; then
       dot='🟣'
@@ -269,15 +279,22 @@ load_rows() {
     elif [[ $decision == CHANGES_REQUESTED ]]; then
       dot='🟠'
       pr_status='changes'
-    elif [[ $decision == APPROVED || $merge_state == CLEAN ]]; then
+    elif [[ $merge_state == BLOCKED ]]; then
+      dot='🟡'
+      pr_status='blocked'
+    elif [[ $downstack_blocked == true ]]; then
+      dot='🔴'
+      pr_status='downstream'
+    elif [[ $merge_state == CLEAN ]]; then
       dot='🟢'
       pr_status='ready'
     else
       dot='🔵'
-      pr_status='ready'
+      pr_status='pending'
     fi
+    [[ $merge_state == BLOCKED ]] && downstack_blocked=true
 
-    printf -v display '%s %s #%-6s %-8s %-48s %s' "$marker" "$dot" "$number" "$pr_status" "$title" "$branch"
+    printf -v display '%s %s #%-6s %-10s %s %s %s %-48s %s' "$marker" "$dot" "$number" "$pr_status" "$approved_cell" "$ci_cell" "$comments_cell" "$title" "$branch"
     rows+=("${display}"$'\t'"${url}"$'\t'"${state}"$'\t'"${draft}"$'\t'"${number}"$'\t'"${branch}")
   done < <(jq -nr --argjson stack "$stack_json" --argjson prs "$prs_json" '
     $stack.branches[]
@@ -292,7 +309,11 @@ load_rows() {
         ($pr.state // .pr.state // ""),
         ($pr.isDraft // false),
         ($pr.reviewDecision // "-"),
-        ($pr.mergeStateStatus // "-")
+        ($pr.mergeStateStatus // "-"),
+        (($pr.reviewDecision // "") == "APPROVED"),
+        (($pr.commits.nodes[-1].commit.statusCheckRollup.state // "") == "SUCCESS"),
+        (([$pr.reviewThreads.nodes[]? | select(.isResolved == false)] | length) == 0
+          and (($pr.reviewThreads.pageInfo.hasNextPage // false) == false))
       ]
     | @tsv
   ')
@@ -305,7 +326,7 @@ load_rows() {
 
 if [[ ${1:-} == __rows ]]; then
   load_rows || exit 1
-  printf '%s\n' "${rows[@]}"
+  printf '%s\n' "$column_header" "${rows[@]}"
   exit 0
 fi
 
@@ -324,13 +345,14 @@ while true; do
   insert_header='INSERT | Esc normal'
   message=''
 
-  selection="$(printf '%s\n' "${rows[@]}" | fzf \
+  selection="$(printf '%s\n' "$column_header" "${rows[@]}" | fzf \
     --ansi \
     --border \
     --cycle \
     --delimiter=$'\t' \
     --disabled \
     --header="$normal_header" \
+    --header-lines=1 \
     --listen=0 \
     --no-input \
     --bind='double-click:ignore' \
