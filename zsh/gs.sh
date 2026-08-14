@@ -517,12 +517,13 @@ load_rows() {
   fi
 
   rows=()
-  while IFS=$'\t' read -r branch number url current title state draft decision merge_state approved ci_state comments; do
+  while IFS=$'\x1f' read -r branch number url current title state draft decision merge_state approved ci_state comments; do
     marker=' '
     [[ $current == true ]] && marker='*'
+    [[ -z $title ]] && title=$branch
 
     if [[ -z $url ]]; then
-      printf -v display '%s ·  %-7s %-10s %s %s %s %-48s %s' "$marker" '-' 'no PR' ' 🔴 ' ' 🔴 ' ' 🔴 ' '' "$branch"
+      printf -v display '%s ·  %-7s %-10s %s %s %s %-48s %s' "$marker" '-' 'no PR' ' 🔴 ' ' 🔴 ' ' 🔴 ' "$title" "$branch"
       rows+=("${display}"$'\t-\tNONE\tfalse\t-\t'"${branch}")
       continue
     fi
@@ -583,7 +584,7 @@ load_rows() {
         (([$pr.reviewThreads.nodes[]? | select(.isResolved == false)] | length) == 0
           and (($pr.reviewThreads.pageInfo.hasNextPage // false) == false))
       ]
-    | @tsv
+    | join("\u001f")
   ')
 
   if (( ${#rows} == 0 )); then
