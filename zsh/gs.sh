@@ -494,7 +494,7 @@ load_rows() {
     graphql='query($owner: String!, $name: String!) { repository(owner: $owner, name: $name) {'
 
     for number in "${(@f)$(jq -r '.branches[].pr.number // empty' <<<"$stack_json")}"; do
-      graphql+=" pr${number}: pullRequest(number: ${number}) { number url title state isDraft reviewDecision mergeStateStatus commits(last: 1) { nodes { commit { statusCheckRollup { state } } } } reviewThreads(first: 100) { nodes { isResolved } pageInfo { hasNextPage } } }"
+      graphql+=" pr${number}: pullRequest(number: ${number}) { number url title state isDraft reviewDecision mergeStateStatus latestReviews(first: 100) { nodes { state } } commits(last: 1) { nodes { commit { statusCheckRollup { state } } } } reviewThreads(first: 100) { nodes { isResolved } pageInfo { hasNextPage } } }"
     done
     graphql+=' } }'
 
@@ -567,7 +567,7 @@ load_rows() {
         ($pr.isDraft // false),
         ($pr.reviewDecision // "-"),
         ($pr.mergeStateStatus // "-"),
-        (($pr.reviewDecision // "") == "APPROVED"),
+        (($pr.reviewDecision // ([ $pr.latestReviews.nodes[]?.state | select(. == "APPROVED") ] | if length > 0 then "APPROVED" else "" end)) == "APPROVED"),
         ($pr.commits.nodes[-1].commit.statusCheckRollup.state // "-"),
         (([$pr.reviewThreads.nodes[]? | select(.isResolved == false)] | length) == 0
           and (($pr.reviewThreads.pageInfo.hasNextPage // false) == false))
