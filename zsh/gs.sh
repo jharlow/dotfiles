@@ -231,6 +231,16 @@ done
 
 export GH_PROMPT_DISABLED=1
 
+typeset -a tmux_fzf_bindings
+if [[ -n ${TMUX:-} ]]; then
+  tmux_fzf_bindings=(
+    --bind='ctrl-h:execute-silent(tmux select-pane -L)'
+    --bind='ctrl-j:execute-silent(tmux select-pane -D)'
+    --bind='ctrl-k:execute-silent(tmux select-pane -U)'
+    --bind='ctrl-l:execute-silent(tmux select-pane -R)'
+  )
+fi
+
 checkout_status_bar() {
   local -i merged=$1 open=$2 closed=$3 unpushed=$4 total boxes assigned i best
   local -a counts scaled remainders colors
@@ -429,6 +439,7 @@ if [[ ${1:-} == checkout ]]; then
   checkout_insert_header='INSERT | Esc normal | Enter checkout'
 
   selection="$("$script_dir/gs.sh" __checkout-filter All "$checkout_rows_file" | fzf \
+    "${tmux_fzf_bindings[@]}" \
     --ansi \
     --border \
     --border-label='All' \
@@ -603,6 +614,7 @@ while true; do
   message=''
 
   selection="$(printf '%s\n' "$column_header" "${rows[@]}" | fzf \
+    "${tmux_fzf_bindings[@]}" \
     --ansi \
     --border \
     --cycle \
