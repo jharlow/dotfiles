@@ -166,8 +166,7 @@ for repo in "${pr_repos[@]}"; do
   fi
 done
 
-output=''
-html_output='<!doctype html><html><body>'
+typeset -a output_lines html_lines
 downstack_blocked=false
 for ((index = 1; index <= ${#pr_numbers}; index++)); do
   number="${pr_numbers[index]}"
@@ -216,9 +215,9 @@ for ((index = 1; index <= ${#pr_numbers}; index++)); do
   markdown_label=${markdown_label//\]/\\]}
   diff_stat="\`+${additions}/-${deletions}\`"
   if [[ $format == slack ]]; then
-    output+="${shortcode} [${markdown_label}](${url}) ${diff_stat}"$'\n'
+    output_lines+=("${shortcode} [${markdown_label}](${url}) ${diff_stat}")
   else
-    output+="${emoji} [${markdown_label}](${url}) ${diff_stat}"$'\n'
+    output_lines+=("${emoji} [${markdown_label}](${url}) ${diff_stat}")
   fi
 
   html_label=${label//&/\&amp;}
@@ -226,9 +225,15 @@ for ((index = 1; index <= ${#pr_numbers}; index++)); do
   html_label=${html_label//>/\&gt;}
   html_url=${url//&/\&amp;}
   html_url=${html_url//\"/\&quot;}
-  html_output+="${emoji} <a href=\"${html_url}\">${html_label}</a> <code>+${additions}/-${deletions}</code><br>"
+  html_lines+=("${emoji} <a href=\"${html_url}\">${html_label}</a> <code>+${additions}/-${deletions}</code><br>")
 done
 
+output=''
+html_output='<!doctype html><html><body>'
+for ((index = ${#output_lines}; index >= 1; index--)); do
+  output+="${output_lines[index]}"$'\n'
+  html_output+="${html_lines[index]}"
+done
 html_output+='</body></html>'
 
 if ! copy_to_clipboard "$output" "$html_output"; then
