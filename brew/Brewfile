@@ -58,7 +58,6 @@ cask 'claude-code'
 cask 'anomalyco/tap/opencode'
 cask 'visual-studio-code'
 cask 'zed'
-cask 'cursor'
 cask 'mongodb-compass'
 cask 'pgadmin4'
 
@@ -76,7 +75,7 @@ cask 'slack'
 cask 'loom'
 
 ## Browsers
-cask 'arc'
+cask 'helium-browser'
 cask 'firefox'
 cask 'google-chrome'
 
