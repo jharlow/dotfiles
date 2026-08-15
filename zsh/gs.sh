@@ -107,6 +107,35 @@ run_function_with_spinner() {
   return "$result"
 }
 
+run_tuicr() {
+  local number=$1
+  local spinner_pid result
+  local repo_selector=$PWD
+
+  (
+    local frame_index=1
+    local -a frames=('|' '/' '-' $'\\')
+    while ! tuicr review list --repo "$repo_selector" 2>/dev/null | \
+      jq -e --arg number "$number" \
+        'any(.[]; .active == true and .kind == "pr" and .anchor == ("pr/" + $number))' >/dev/null; do
+      printf '\r\033[K[%s] Opening pull request #%s in tuicr' "${frames[frame_index]}" "$number" >/dev/tty
+      frame_index=$((frame_index % ${#frames} + 1))
+      sleep 0.1
+    done
+  ) &
+  spinner_pid=$!
+  active_spinner_pid=$spinner_pid
+
+  tuicr pr "$number"
+  result=$?
+
+  kill "$spinner_pid" 2>/dev/null
+  wait "$spinner_pid" 2>/dev/null
+  active_spinner_pid=''
+  printf '\r\033[K' >/dev/tty
+  return "$result"
+}
+
 run_fzf_action() {
   local action=$1
   local target=${2:-}
@@ -120,6 +149,10 @@ run_fzf_action() {
     draft)
       label='Converting pull request to draft'
       success='Pull request converted to draft'
+      ;;
+    approve)
+      label='Approving pull request'
+      success='Pull request approved'
       ;;
     view)
       label='Opening pull request'
@@ -157,6 +190,7 @@ run_fzf_action() {
   case $action in
     ready) run_with_timeout 30 gh pr ready "$target" >"$output_file" 2>&1 ;;
     draft) run_with_timeout 30 gh pr ready --undo "$target" >"$output_file" 2>&1 ;;
+    approve) run_with_timeout 30 gh pr review "$target" --approve >"$output_file" 2>&1 ;;
     view) run_with_timeout 30 gh pr view "$target" --web >"$output_file" 2>&1 ;;
     yank) run_with_timeout 60 "$script_dir/prl.sh" >"$output_file" 2>&1 ;;
     refresh) run_with_timeout 30 "$script_dir/gs.sh" __rows >"$output_file" 2>&1 ;;
@@ -165,7 +199,7 @@ run_fzf_action() {
 
   if (( result == 0 )) && [[ $action == refresh ]]; then
     rows_file=$output_file
-  elif (( result == 0 )) && [[ $action == ready || $action == draft ]]; then
+  elif (( result == 0 )) && [[ $action == ready || $action == draft || $action == approve ]]; then
     rows_file="$(mktemp)" || result=1
     if (( result == 0 )); then
       "$script_dir/gs.sh" __rows >"$rows_file" 2>>"$output_file" || result=$?
@@ -177,7 +211,7 @@ run_fzf_action() {
   active_spinner_pid=''
 
   if (( result == 0 )); then
-    if [[ $action == ready || $action == draft || $action == refresh ]]; then
+    if [[ $action == ready || $action == draft || $action == approve || $action == refresh ]]; then
       fzf_notify "reload(command cat ${(q)rows_file})+change-footer(✓ ${success})"
     else
       fzf_notify "change-footer(✓ ${success})"
@@ -216,7 +250,7 @@ esac
 
 if [[ ${1:-} != view && ${1:-} != checkout && ${1:-} != __fzf-action && ${1:-} != __rows && \
   ${1:-} != __checkout-rows && ${1:-} != __checkout-preview && ${1:-} != __checkout-filter && \
-  ${1:-} != __checkout-toggle ]] || \
+  ${1:-} != __checkout-toggle && ${1:-} != __view-header ]] || \
   [[ ${1:-} == checkout && $# -ne 1 ]] || \
   [[ ${1:-} == view && $# -ne 1 ]]; then
   exec gh stack "$@"
@@ -483,6 +517,40 @@ message=''
 typeset -a rows
 printf -v column_header '     %-7s %-10s %-4s %-4s %-4s %-48s %s' 'PR' 'status' '[ap]' '[ci]' '[co]' 'title' 'branch'
 
+view_header() {
+  local target=${1:--}
+  local input_state=${2:-disabled}
+  local review_status=${3:--}
+  local notice=${4:-}
+
+  if [[ $input_state == enabled ]]; then
+    printf 'INSERT | Esc normal'
+    return
+  fi
+
+  printf 'NORMAL | Enter/c checkout | i search | u update\n'
+  printf 'r ready | d draft | '
+  case $review_status in
+    APPROVED) printf '\033[32m✓ a approved\033[0m' ;;
+    CHANGES_REQUESTED) printf '\033[31m✗ a rejected\033[0m' ;;
+    *) printf '\033[33m◌ a approve\033[0m' ;;
+  esac
+  printf ' | m merge stack\n'
+  printf 'y yank | v view web | '
+  if [[ $target == - ]]; then
+    printf '\033[90mt tuicr\033[0m'
+  else
+    printf 't tuicr'
+  fi
+  printf ' | q quit'
+  [[ -n $notice ]] && printf '\n%s' "$notice"
+}
+
+if [[ ${1:-} == __view-header ]]; then
+  view_header "${2:--}" "${3:-disabled}" "${4:--}" "${5:-}"
+  exit 0
+fi
+
 load_rows() {
   local stack_json first_url repo_path repo owner name graphql response prs_json
   local branch number url current title state draft decision merge_state approved ci_state comments
@@ -524,7 +592,7 @@ load_rows() {
 
     if [[ -z $url ]]; then
       printf -v display '%s ·  %-7s %-10s %s %s %s %-48s %s' "$marker" '-' 'no PR' ' 🔴 ' ' 🔴 ' ' 🔴 ' "$title" "$branch"
-      rows+=("${display}"$'\t-\tNONE\tfalse\t-\t'"${branch}")
+      rows+=("${display}"$'\t-\tNONE\tfalse\t-\t'"${branch}"$'\tNONE')
       continue
     fi
 
@@ -564,7 +632,7 @@ load_rows() {
     [[ $merge_state == BLOCKED ]] && downstack_blocked=true
 
     printf -v display '%s %s #%-6s %-10s %s %s %s %-48s %s' "$marker" "$dot" "$number" "$pr_status" "$approved_cell" "$ci_cell" "$comments_cell" "$title" "$branch"
-    rows+=("${display}"$'\t'"${url}"$'\t'"${state}"$'\t'"${draft}"$'\t'"${number}"$'\t'"${branch}")
+    rows+=("${display}"$'\t'"${url}"$'\t'"${state}"$'\t'"${draft}"$'\t'"${number}"$'\t'"${branch}"$'\t'"${decision}")
   done < <(jq -nr --argjson stack "$stack_json" --argjson prs "$prs_json" '
     $stack.branches[]
     | (.pr.url // "") as $url
@@ -607,10 +675,10 @@ fi
 while true; do
   run_function_with_spinner 'Loading stack' load_rows || exit 1
 
-  normal_header='NORMAL | Enter/c checkout | i search | u update'
-  normal_header+=$'\n''r ready | d draft | m merge stack'
-  normal_header+=$'\n''y yank | v view web | q quit'
-  [[ -n $message ]] && normal_header+=$'\n'"$message"
+  first_url=${${rows[1]#*$'\t'}%%$'\t'*}
+  first_review_status=${rows[1]##*$'\t'}
+  notice=$message
+  normal_header="$(view_header "$first_url" disabled "$first_review_status" "$notice")"
   insert_header='INSERT | Esc normal'
   message=''
 
@@ -627,7 +695,8 @@ while true; do
     --no-input \
     --bind='double-click:ignore' \
     --bind="alt-i:show-input+enable-search+change-prompt(INSERT> )+change-header($insert_header)" \
-    --bind="esc:disable-search+hide-input+change-header($normal_header)" \
+    --bind="esc:disable-search+hide-input+transform-header(${(q)script_dir}/gs.sh __view-header {2} disabled {7} ${(q)notice})" \
+    --bind="focus:transform-header(${(q)script_dir}/gs.sh __view-header {2} \"\$FZF_INPUT_STATE\" {7} ${(q)notice})" \
     --bind='enter:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-c)" || echo ignore)' \
     --bind='i:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-i)" || echo put)' \
     --bind='j:transform([ "$FZF_INPUT_STATE" != enabled ] && echo down || echo put)' \
@@ -635,14 +704,17 @@ while true; do
     --bind='c:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-c)" || echo put)' \
     --bind='r:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-r)" || echo put)' \
     --bind='d:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-d)" || echo put)' \
+    --bind='a:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-a)" || echo put)' \
     --bind='u:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-u)" || echo put)' \
     --bind='m:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-m)" || echo put)' \
     --bind='y:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-y)" || echo put)' \
     --bind='v:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-v)" || echo put)' \
+    --bind='t:transform(if [ "$FZF_INPUT_STATE" = enabled ]; then echo put; elif [ {2} = - ]; then echo ignore; else echo "trigger(alt-t)"; fi)' \
     --bind='q:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-q)" || echo put)' \
-    --bind='alt-c:print(c)+accept,alt-m:print(m)+accept,alt-q:abort' \
+    --bind='alt-c:print(c)+accept,alt-m:print(m)+accept,alt-t:print(t)+accept,alt-q:abort' \
     --bind="alt-r:execute-silent(${(q)script_dir}/gs.sh __fzf-action ready {2} </dev/null >/dev/null 2>&1 &)" \
     --bind="alt-d:execute-silent(${(q)script_dir}/gs.sh __fzf-action draft {2} </dev/null >/dev/null 2>&1 &)" \
+    --bind="alt-a:execute-silent(${(q)script_dir}/gs.sh __fzf-action approve {2} </dev/null >/dev/null 2>&1 &)" \
     --bind="alt-u:execute-silent(${(q)script_dir}/gs.sh __fzf-action refresh </dev/null >/dev/null 2>&1 &)" \
     --bind="alt-v:execute-silent(${(q)script_dir}/gs.sh __fzf-action view {2} </dev/null >/dev/null 2>&1 &)" \
     --bind="alt-y:execute-silent(${(q)script_dir}/gs.sh __fzf-action yank </dev/null >/dev/null 2>&1 &)" \
@@ -663,7 +735,7 @@ while true; do
     continue
   fi
 
-  IFS=$'\t' read -r display url state draft number branch <<<"$row"
+  IFS=$'\t' read -r display url state draft number branch review_status <<<"$row"
 
   if [[ $key == c ]]; then
     if run_with_spinner "Checking out ${branch}" gh stack checkout "$branch"; then
@@ -679,6 +751,13 @@ while true; do
   fi
 
   case $key in
+    t)
+      if ! command -v tuicr >/dev/null 2>&1; then
+        message='tuicr is required to open pull requests'
+        continue
+      fi
+      run_tuicr "$number"
+      ;;
     m)
       if [[ $state != OPEN ]]; then
         message='Only open pull requests can be merged'
