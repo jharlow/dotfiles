@@ -12,9 +12,15 @@ brew 'git-delta'
 brew 'tuicr'
 
 ## Terminal IDE
+cask 'ghostty'
 brew 'neovim'
 brew 'tmux'
 brew 'tmuxinator'
+
+## Agent harnesses
+brew 'pi-coding-agent'
+brew 'anomalyco/tap/opencode', trusted: true
+cask 'claude-code'
 
 ## CLI
 brew 'zsh'
@@ -53,9 +59,6 @@ cask '1password'
 cask '1password-cli'
 
 ## Development
-cask 'ghostty'
-cask 'claude-code'
-cask 'anomalyco/tap/opencode'
 cask 'visual-studio-code'
 cask 'zed'
 cask 'mongodb-compass'
