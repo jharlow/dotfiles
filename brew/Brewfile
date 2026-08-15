@@ -2,7 +2,6 @@
 
 ## Stow
 brew 'stow'
-
 brew 'jq'
 
 ## Git
@@ -10,6 +9,7 @@ brew 'git'
 brew 'gh'
 brew 'lazygit'
 brew 'git-delta'
+brew 'tuicr'
 
 ## Terminal IDE
 brew 'neovim'
