@@ -70,6 +70,7 @@ cask 'karabiner-elements'
 cask 'raycast'
 cask 'rectangle'
 cask 'screen-studio'
+cask 'voiceink'
 
 ## Communication
 cask 'whatsapp'
