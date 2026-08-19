@@ -239,7 +239,13 @@ case ${1:-} in
     ;;
   a) set -- add "${@:2}" ;;
   i) set -- init "${@:2}" ;;
-  su) set -- submit "${@:2}" ;;
+  su)
+    if [[ ${2:-} == -a ]]; then
+      set -- submit --auto "${@:3}"
+    else
+      set -- submit "${@:2}"
+    fi
+    ;;
   sy) set -- sync "${@:2}" ;;
   p) set -- push "${@:2}" ;;
   b) set -- bottom "${@:2}" ;;
