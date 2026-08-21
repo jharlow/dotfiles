@@ -256,7 +256,8 @@ esac
 
 if [[ ${1:-} != view && ${1:-} != checkout && ${1:-} != __fzf-action && ${1:-} != __rows && \
   ${1:-} != __checkout-rows && ${1:-} != __checkout-preview && ${1:-} != __checkout-filter && \
-  ${1:-} != __checkout-toggle && ${1:-} != __view-header ]] || \
+  ${1:-} != __checkout-toggle && ${1:-} != __view-header && \
+  ${1:-} != __view-preview && ${1:-} != __view-preview-toggle ]] || \
   [[ ${1:-} == checkout && $# -ne 1 ]] || \
   [[ ${1:-} == view && $# -ne 1 ]]; then
   exec gh stack "$@"
@@ -542,7 +543,7 @@ view_header() {
     *) printf '\033[33m◌ a approve\033[0m' ;;
   esac
   printf ' | m merge stack\n'
-  printf 'y yank | v view web | '
+  printf 'y yank | v view web | p preview | '
   if [[ $target == - ]]; then
     printf '\033[90mt tuicr\033[0m'
   else
@@ -554,6 +555,75 @@ view_header() {
 
 if [[ ${1:-} == __view-header ]]; then
   view_header "${2:--}" "${3:-disabled}" "${4:--}" "${5:-}"
+  exit 0
+fi
+
+if [[ ${1:-} == __view-preview ]]; then
+  mode=${2:-pr}
+  url=${3:-}
+  branch=${4:-}
+  number=${5:-}
+  if [[ -z $url || $url == - ]]; then
+    print -r -- 'No pull request for this branch'
+    exit 0
+  fi
+  case $mode in
+    files)
+      print -r -- "Files touched by ${branch}:"
+      print
+      gh pr diff "$url" --name-only
+      ;;
+    ci)
+      print -r -- "CI status for #${number}:"
+      print
+      checks_json="$(gh pr checks "$url" --json name,bucket,startedAt,completedAt 2>/dev/null)" || checks_json='[]'
+      required_json="$(gh pr checks "$url" --required --json name 2>/dev/null)" || required_json='[]'
+      jq -nr --argjson checks "${checks_json:-[]}" --argjson required "${required_json:-[]}" '
+        def epoch:
+          . as $t
+          | if ($t // "") == "" then null
+            else (try ($t | sub("\\.[0-9]+";"") | sub("Z$";"+0000") | sub("(?<s>[+-][0-9]{2}):(?<m>[0-9]{2})$";"\(.s)\(.m)") | strptime("%Y-%m-%dT%H:%M:%S%z") | mktime) catch null)
+            end;
+        def dur:
+          (.startedAt | epoch) as $a
+          | (.completedAt | epoch) as $b
+          | if $a == null or $b == null then "—"
+            else ($b - $a) as $s
+            | if $s < 0 then "—"
+              elif $s < 60 then "\($s)s"
+              else "\($s / 60 | floor)m \($s % 60)s" end
+            end;
+        def icon:
+          {pass:"🟢", fail:"🔴", pending:"🟡", skipping:"⚪", cancel:"🟠"}[.] // "⚫";
+        ([$required[].name] | unique) as $req
+        | if ($checks | length) == 0 then "No checks reported"
+          else
+            "\tNAME\tTIME\tREQUIRED",
+            ( $checks
+              | map(. + {req: ([.name] | inside($req))})
+              | sort_by([(if .req then 0 else 1 end), .name])[]
+              | "\(.bucket | icon)\t\(.name)\t\(dur)\t\(if .req then "yes" else "" end)" )
+          end
+      ' | column -t -s $'\t'
+      ;;
+    *)
+      gh pr view "$url"
+      ;;
+  esac
+  exit 0
+fi
+
+if [[ ${1:-} == __view-preview-toggle ]]; then
+  state_file=${2:-}
+  current="$(command cat "$state_file" 2>/dev/null)"
+  case $current in
+    pr) next=files; label='Files' ;;
+    files) next=ci; label='CI' ;;
+    *) next=pr; label='PR' ;;
+  esac
+  printf '%s\n' "$next" >"$state_file"
+  printf 'change-preview-label([ %s ])+change-preview(%s __view-preview %s {2} {6} {5})' \
+    "$label" "${(q)script_dir}/gs.sh" "$next"
   exit 0
 fi
 
@@ -579,7 +649,7 @@ load_rows() {
     graphql='query($owner: String!, $name: String!) { repository(owner: $owner, name: $name) {'
 
     for number in "${(@f)$(jq -r '.branches[].pr.number // empty' <<<"$stack_json")}"; do
-      graphql+=" pr${number}: pullRequest(number: ${number}) { number url title state isDraft reviewDecision mergeStateStatus latestReviews(first: 100) { nodes { state } } commits(last: 1) { nodes { commit { statusCheckRollup { state } } } } reviewThreads(first: 100) { nodes { isResolved } pageInfo { hasNextPage } } }"
+      graphql+=" pr${number}: pullRequest(number: ${number}) { number url title state isDraft reviewDecision mergeStateStatus latestReviews(first: 100) { nodes { state } } commits(last: 1) { nodes { commit { statusCheckRollup { state contexts(first: 100) { nodes { __typename ... on CheckRun { status conclusion } ... on StatusContext { state } } } } } } } reviewThreads(first: 100) { nodes { isResolved } pageInfo { hasNextPage } } }"
     done
     graphql+=' } }'
 
@@ -654,7 +724,21 @@ load_rows() {
         ($pr.reviewDecision // "-"),
         ($pr.mergeStateStatus // "-"),
         (($pr.reviewDecision // ([ $pr.latestReviews.nodes[]?.state | select(. == "APPROVED") ] | if length > 0 then "APPROVED" else "" end)) == "APPROVED"),
-        ($pr.commits.nodes[-1].commit.statusCheckRollup.state // "-"),
+        (($pr.commits.nodes[-1].commit.statusCheckRollup.contexts.nodes // []) as $ctx
+          | if ($ctx | length) == 0 then ($pr.commits.nodes[-1].commit.statusCheckRollup.state // "-")
+            elif any($ctx[];
+                (.conclusion // "") as $c
+                | (.state // "") as $st
+                | (.__typename == "CheckRun" and ((["FAILURE","TIMED_OUT","STARTUP_FAILURE","ACTION_REQUIRED"] | index($c)) != null))
+                  or (.__typename == "StatusContext" and ((["ERROR","FAILURE"] | index($st)) != null)))
+              then "FAILURE"
+            elif any($ctx[];
+                (.status // "") as $s
+                | (.state // "") as $st
+                | (.__typename == "CheckRun" and $s != "COMPLETED")
+                  or (.__typename == "StatusContext" and ((["PENDING","EXPECTED"] | index($st)) != null)))
+              then "PENDING"
+            else "SUCCESS" end),
         (([$pr.reviewThreads.nodes[]? | select(.isResolved == false)] | length) == 0
           and (($pr.reviewThreads.pageInfo.hasNextPage // false) == false))
       ]
@@ -678,6 +762,10 @@ if [[ ${1:-} == __fzf-action ]]; then
   exit $?
 fi
 
+view_preview_state="$(mktemp)" || exit 1
+printf 'pr\n' >"$view_preview_state"
+trap 'command rm -f "$view_preview_state"; cancel' INT TERM HUP
+
 while true; do
   run_function_with_spinner 'Loading stack' load_rows || exit 1
 
@@ -687,6 +775,13 @@ while true; do
   normal_header="$(view_header "$first_url" disabled "$first_review_status" "$notice")"
   insert_header='INSERT | Esc normal'
   message=''
+
+  view_preview_mode="$(command cat "$view_preview_state" 2>/dev/null)"
+  case $view_preview_mode in
+    files) view_preview_label='Files' ;;
+    ci) view_preview_label='CI' ;;
+    *) view_preview_mode='pr'; view_preview_label='PR' ;;
+  esac
 
   selection="$(printf '%s\n' "$column_header" "${rows[@]}" | fzf \
     "${tmux_fzf_bindings[@]}" \
@@ -714,6 +809,9 @@ while true; do
     --bind='u:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-u)" || echo put)' \
     --bind='m:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-m)" || echo put)' \
     --bind='y:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-y)" || echo put)' \
+    --bind="p:transform([ \"\$FZF_INPUT_STATE\" != enabled ] && ${(q)script_dir}/gs.sh __view-preview-toggle ${(q)view_preview_state} || echo put)" \
+    --bind='ctrl-d:preview-half-page-down' \
+    --bind='ctrl-u:preview-half-page-up' \
     --bind='v:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-v)" || echo put)' \
     --bind='t:transform(if [ "$FZF_INPUT_STATE" = enabled ]; then echo put; elif [ {2} = - ]; then echo ignore; else echo "trigger(alt-t)"; fi)' \
     --bind='q:transform([ "$FZF_INPUT_STATE" != enabled ] && echo "trigger(alt-q)" || echo put)' \
@@ -727,7 +825,8 @@ while true; do
     --id-nth=6 \
     --no-multi \
     --no-sort \
-    --preview='url={2}; [ -n "$url" ] && gh pr view "$url"' \
+    --preview="${(q)script_dir}/gs.sh __view-preview ${view_preview_mode} {2} {6} {5}" \
+    --preview-label="[ ${view_preview_label} ]" \
     --preview-window='up,60%,wrap' \
     --track \
     --with-nth=1)" || exit 0
