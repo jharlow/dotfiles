@@ -4,3 +4,7 @@ keybind = shift+enter=text:\x1b\r
 # Send Option as Alt/Meta (so tmux Alt- bindings like resurrect's M-s work).
 # Use `left` instead if you want the right Option key to keep composing accents.
 macos-option-as-alt = true
+
+# Always let Shift+drag use Ghostty's native selection, even when tmux captures
+# the mouse. This provides a reliable Shift+drag, Cmd+C escape hatch.
+mouse-shift-capture = never

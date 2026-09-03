@@ -89,6 +89,9 @@ HISTSIZE=100000
 SAVEHIST=$HISTSIZE
 setopt appendhistory
 
+# Require `exit` to close an interactive shell so Ctrl-D cannot kill its pane.
+setopt ignore_eof
+
 # Zoxide
 eval "$(zoxide init zsh)"
 
@@ -110,6 +113,22 @@ zplug "plugins/aws", from:oh-my-zsh
 zplug "sineto/web-search"
 zplug "Aloxaf/fzf-tab"
 zplug load
+
+# Enter tmux copy mode with `v` from zsh's vi command mode. Inside copy mode,
+# `v` starts selection and `y` copies it before returning to the prompt.
+_tmux_copy_mode() {
+  if [[ -n "$TMUX" ]]; then
+    tmux copy-mode
+  else
+    zle visual-mode
+  fi
+}
+_bind_tmux_copy_mode() {
+  zvm_define_widget tmux-copy-mode _tmux_copy_mode
+  zvm_bindkey vicmd 'v' tmux-copy-mode
+}
+zvm_after_lazy_keybindings_commands+=(_bind_tmux_copy_mode)
+_bind_tmux_copy_mode
 
 # Override oh-my-zsh git plugin's `gr` (git remote) -> jump to repo root
 alias gr='gitroot'
