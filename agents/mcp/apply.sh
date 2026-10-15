@@ -9,15 +9,31 @@ CLIENT="${1:-all}"
 command -v jq >/dev/null 2>&1 || { echo "error: 'jq' not found on PATH (brew install jq)" >&2; exit 1; }
 
 case "$CLIENT" in
-  all|claude|opencode) ;;
-  *) echo "usage: $0 [all|claude|opencode]" >&2; exit 2 ;;
+  all|claude|opencode|pi) ;;
+  *) echo "usage: $0 [all|claude|opencode|pi]" >&2; exit 2 ;;
 esac
+
+apply_pi() {
+  # Pi reads a plain JSON file. pi/mcp.json is stowed to ~/.pi/agent/mcp.json,
+  # so writing the repo file keeps the live config in sync. Pi rejects the
+  # "remote" and "sse" transport types, so drop `type` for those (a `url`
+  # selects streamable HTTP on its own).
+  local out="$SCRIPT_DIR/../../pi/mcp.json"
+  echo "Applying pi MCP servers -> $out"
+  jq '{mcpServers: (.mcpServers | map_values(
+        if (.type == "remote" or .type == "sse") then del(.type) else . end))}' \
+    "$CONFIG" > "$out"
+}
 
 apply_claude() {
   command -v claude >/dev/null 2>&1 || { echo "error: 'claude' CLI not found on PATH" >&2; return 1; }
 
   while IFS= read -r name; do
-    config=$(jq -c --arg name "$name" '.mcpServers[$name]' "$CONFIG")
+    # Claude's add-json rejects `type: "remote"`/`"sse"` and the `oauth` block
+    # (it negotiates OAuth interactively), so normalize before adding.
+    config=$(jq -c --arg name "$name" '.mcpServers[$name]
+      | if (.type == "remote" or .type == "sse") then .type = "http" else . end
+      | del(.oauth)' "$CONFIG")
     echo "Applying Claude MCP server: $name"
     claude mcp remove "$name" --scope user >/dev/null 2>&1 || true
     claude mcp add-json "$name" "$config" --scope user
@@ -55,6 +71,10 @@ apply_opencode() {
     "${command[@]}"
   done < <(jq -r '.mcpServers | keys[]' "$CONFIG")
 }
+
+if [ "$CLIENT" = "all" ] || [ "$CLIENT" = "pi" ]; then
+  apply_pi
+fi
 
 if [ "$CLIENT" = "all" ] || [ "$CLIENT" = "opencode" ]; then
   apply_opencode

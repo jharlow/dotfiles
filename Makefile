@@ -13,6 +13,7 @@ stow: create_directories
 	@stow -t "$(HOME)/Library/Application Support/lazygit" lazygit
 	@stow -t ~/.config/zed zed
 	@stow -t ~/.agents agents
+	@stow --no-folding -t ~/.pi/agent pi
 	@stow -t ~/.claude claude
 	@$(MAKE) --no-print-directory link_agent_skills
 
@@ -28,9 +29,12 @@ link_agent_skills:
 
 # Apply the shared MCP declarations to both coding agents. This remains
 # separate from `stow` because both CLIs maintain additional local state.
-.PHONY: agent-mcp claude-mcp opencode-mcp
+.PHONY: agent-mcp claude-mcp opencode-mcp pi-mcp
 agent-mcp:
 	@$(HOME)/dotfiles/agents/mcp/apply.sh all
+
+pi-mcp:
+	@$(HOME)/dotfiles/agents/mcp/apply.sh pi
 
 claude-mcp:
 	@$(HOME)/dotfiles/agents/mcp/apply.sh claude
@@ -47,6 +51,7 @@ unstow:
 	@stow -D -t ~/.config/opencode opencode
 	@stow -D -t ~/.config/zed zed
 	@stow -D -t "$(HOME)/Library/Application Support/lazygit" lazygit
+	@stow --no-folding -D -t ~/.pi/agent pi
 	@stow -D -t ~/.claude claude
 	@for skill in $(CURDIR)/agents/skills/*/; do \
 		name=$$(basename $$skill); \
@@ -64,6 +69,7 @@ create_directories:
 	@mkdir -p ~/.config/opencode
 	@mkdir -p "$(HOME)/Library/Application Support/lazygit"
 	@mkdir -p ~/.config/zed
+	@mkdir -p ~/.pi/agent
 	@mkdir -p ~/.claude
 	@mkdir -p ~/.claude/skills
 	@mkdir -p ~/.agents

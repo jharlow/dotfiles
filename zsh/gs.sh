@@ -629,7 +629,7 @@ fi
 
 load_rows() {
   local stack_json first_url repo_path repo owner name graphql response prs_json
-  local branch number url current title state draft decision merge_state approved ci_state comments
+  local branch number url current title state draft decision merge_state approved ci_state comments enqueued
   local dot pr_status marker display approved_dot ci_dot comments_dot approved_cell ci_cell comments_cell
   local downstack_blocked=false
 
@@ -649,7 +649,7 @@ load_rows() {
     graphql='query($owner: String!, $name: String!) { repository(owner: $owner, name: $name) {'
 
     for number in "${(@f)$(jq -r '.branches[].pr.number // empty' <<<"$stack_json")}"; do
-      graphql+=" pr${number}: pullRequest(number: ${number}) { number url title state isDraft reviewDecision mergeStateStatus latestReviews(first: 100) { nodes { state } } commits(last: 1) { nodes { commit { statusCheckRollup { state contexts(first: 100) { nodes { __typename ... on CheckRun { status conclusion } ... on StatusContext { state } } } } } } } reviewThreads(first: 100) { nodes { isResolved } pageInfo { hasNextPage } } }"
+      graphql+=" pr${number}: pullRequest(number: ${number}) { number url title state isDraft isInMergeQueue reviewDecision mergeStateStatus latestReviews(first: 100) { nodes { state } } commits(last: 1) { nodes { commit { statusCheckRollup { state contexts(first: 100) { nodes { __typename ... on CheckRun { status conclusion } ... on StatusContext { state } } } } } } } reviewThreads(first: 100) { nodes { isResolved } pageInfo { hasNextPage } } }"
     done
     graphql+=' } }'
 
@@ -661,7 +661,7 @@ load_rows() {
   fi
 
   rows=()
-  while IFS=$'\x1f' read -r branch number url current title state draft decision merge_state approved ci_state comments; do
+  while IFS=$'\x1f' read -r branch number url current title state draft decision merge_state approved ci_state comments enqueued; do
     marker=' '
     [[ $current == true ]] && marker='*'
     [[ -z $title ]] && title=$branch
@@ -686,6 +686,9 @@ load_rows() {
     if [[ $state == MERGED ]]; then
       dot='🟣'
       pr_status='merged'
+    elif [[ $enqueued == true ]]; then
+      dot='🟠'
+      pr_status='enqueued'
     elif [[ $draft == true ]]; then
       dot='⚪'
       pr_status='draft'
@@ -740,7 +743,8 @@ load_rows() {
               then "PENDING"
             else "SUCCESS" end),
         (([$pr.reviewThreads.nodes[]? | select(.isResolved == false)] | length) == 0
-          and (($pr.reviewThreads.pageInfo.hasNextPage // false) == false))
+          and (($pr.reviewThreads.pageInfo.hasNextPage // false) == false)),
+        ($pr.isInMergeQueue // false)
       ]
     | join("\u001f")
   ')
