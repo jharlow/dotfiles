@@ -2,7 +2,7 @@
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "opus[1m]",
+  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -33,6 +33,5 @@
     "command": "~/.claude/statusline.sh"
   },
   "enabledPlugins": {},
-  "fastMode": true,
   "tui": "fullscreen"
 }
