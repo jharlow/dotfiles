@@ -19,7 +19,7 @@ brew 'tmuxinator'
 
 ## Agent harnesses
 brew 'pi-coding-agent'
-brew 'anomalyco/tap/opencode', trusted: true
+brew 'anomalyco/tap/opencode-v2', trusted: true
 cask 'claude-code'
 
 ## CLI
@@ -71,6 +71,7 @@ cask 'raycast'
 cask 'rectangle'
 cask 'screen-studio'
 cask 'voiceink'
+cask 'anomalyco/tap/hex', trusted: true
 
 ## Communication
 cask 'whatsapp'

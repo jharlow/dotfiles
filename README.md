@@ -171,7 +171,7 @@ Coding agent configuration is split across Stow packages:
 make agent-mcp
 ```
 
-Use `make claude-mcp` or `make opencode-mcp` to update only one client. See `agents/mcp/servers.example.json` for HTTP and stdio examples. The apply script requires `jq` and the corresponding agent CLI.
+Use `make claude-mcp`, `make opencode-mcp`, or `make pi-mcp` to update only one client. See `agents/mcp/servers.example.json` for HTTP and stdio examples. The apply script requires `jq`; `make claude-mcp` also needs the `claude` CLI. Pi reads the generated `pi/mcp.json`, and opencode's `opencode/opencode.jsonc` is updated in place between the generated MCP markers. Rerun `make` after adding a new client config file to link it. Emptying `servers.json` clears the servers from every client.
 
 ## Usage
 

@@ -1,0 +1,4 @@
+{
+  "theme": { "name": "gruvbox", "mode": "system" },
+  "attention": { "enabled": true, "sound": true }
+}

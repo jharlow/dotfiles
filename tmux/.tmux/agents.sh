@@ -1,5 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 # agents.sh — notify about or pick a tmux pane running an AI coding agent.
+#
+# Runs under zsh (the macOS default) because it uses associative arrays, which
+# the system bash 3.2 does not support. Do not run it with `bash agents.sh`.
 #
 # Bound to `prefix + a` (see ~/.tmux.conf). Lists every pane whose *foreground*
 # process is a live `claude`, `codex`, or `opencode` agent, shows each one's
@@ -62,7 +65,7 @@ ROW_FMT='%s %-14s │ %-8s │ %-18s │ %s'
 printf -v HEADER "$ROW_FMT" ' ' 'STATUS' 'AGENT' 'LOCATION' 'TITLE'
 
 # --- gather panes (one tmux call; includes fg command + title) ---------------
-declare -A pane_pid pane_loc pane_cmd pane_title
+typeset -A pane_pid pane_loc pane_cmd pane_title
 while IFS=$'\t' read -r id pid cmd loc win title; do
   pane_pid[$id]=$pid
   pane_cmd[$id]=$cmd
@@ -73,10 +76,10 @@ done < <(tmux list-panes -a -F \
 
 # --- process table: ppid map (all procs) + agent pids (grep, no fork/pid) -----
 psout=$(ps -axww -o pid=,ppid=,command=)
-declare -A ppid_of
+typeset -A ppid_of
 while read -r p pp _; do ppid_of[$p]=$pp; done <<<"$psout"
 
-declare -A agent_kind_of  # agent pid -> claude|codex|opencode
+typeset -A agent_kind_of  # agent pid -> claude|codex|opencode
 while read -r p _ rest; do
   [[ $rest == *'agents.sh notify'* ]] && continue
   case " $rest " in
@@ -87,8 +90,8 @@ while read -r p _ rest; do
 done < <(grep -iE '(^| |/)(claude|codex|opencode)( |$)' <<<"$psout")
 
 # pane shell pid -> pane id, for the ancestor walk.
-declare -A by_pid
-for id in "${!pane_pid[@]}"; do by_pid[${pane_pid[$id]}]=$id; done
+typeset -A by_pid
+for id in "${(k)pane_pid[@]}"; do by_pid[${pane_pid[$id]}]=$id; done
 
 # Walk up from a process to the pane id that owns it (or empty).
 owning_pane() {
@@ -106,7 +109,7 @@ owning_pane() {
 # falls through to the STATUS_* heuristics below, so an opencode built without
 # the plugin still shows up, just less reliably.
 OC_STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/opencode/agents"
-declare -A oc_status  # pane id -> awaiting|working|idle
+typeset -A oc_status  # pane id -> awaiting|working|idle
 for f in "$OC_STATE_DIR"/*.state; do
   [[ -f $f ]] || continue   # no glob match: the literal pattern
   st= pane= pid=
@@ -151,9 +154,9 @@ pane_status() {
 }
 
 # --- build rows: one per pane with a live agent as the foreground app --------
-declare -A seen
+typeset -A seen
 rows=""
-for pid in "${!agent_kind_of[@]}"; do
+for pid in "${(k)agent_kind_of[@]}"; do
   id=$(owning_pane "$pid"); [[ -z $id ]] && continue
   [[ -n ${seen[$id]:-} ]] && continue
   # Foreground must actually be the agent, not a shell it was launched from.
