@@ -501,6 +501,24 @@
       "skillFolderHash": "65dde57c93ade63d863caa921611bd2d123357b2",
       "installedAt": "2026-11-12T02:46:49.452Z",
       "updatedAt": "2026-11-12T02:46:49.452Z"
+    },
+    "turborepo": {
+      "source": "vercel/turborepo",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel/turborepo.git",
+      "skillPath": "skills/turborepo/SKILL.md",
+      "skillFolderHash": "a1bae26a81bbc79e6eb14b4e7ec4d36694e6e94a",
+      "installedAt": "2026-11-12T02:53:26.326Z",
+      "updatedAt": "2026-11-12T02:53:26.326Z"
+    },
+    "nestjs-best-practices": {
+      "source": "Kadajett/agent-nestjs-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Kadajett/agent-nestjs-skills.git",
+      "skillPath": "skills/nestjs-best-practices/SKILL.md",
+      "skillFolderHash": "904db2759aaf1bd0e30eadedcd00efbd6367cc9f",
+      "installedAt": "2026-11-12T03:06:58.617Z",
+      "updatedAt": "2026-11-12T03:06:58.617Z"
     }
   },
   "lastSelectedAgents": [
