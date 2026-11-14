@@ -1,3 +1,10 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "browse": {
+      "command": "/Users/johnharlow/.local/bin/browse",
+      "args": [
+        "mcp"
+      ]
+    }
+  }
 }

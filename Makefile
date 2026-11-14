@@ -15,6 +15,7 @@ stow: create_directories
 	@stow --no-folding -t ~/.config/opencode opencode
 	@stow --no-folding -t ~/.pi/agent pi
 	@stow -t ~/.claude claude
+	@stow --no-folding -t ~/.agent-browser agent-browser
 	@$(MAKE) --no-print-directory link_agent_skills
 
 # Point each coding agent's skill directory at the shared, dotfiles-managed
@@ -54,6 +55,7 @@ unstow:
 	@stow --no-folding -D -t ~/.pi/agent pi
 	@stow -D -t ~/.config/opencode opencode
 	@stow -D -t ~/.claude claude
+	@stow --no-folding -D -t ~/.agent-browser agent-browser
 	@for skill in $(CURDIR)/agents/skills/*/; do \
 		name=$$(basename $$skill); \
 		rm -f $(HOME)/.claude/skills/$$name; \
@@ -74,4 +76,5 @@ create_directories:
 	@mkdir -p ~/.claude
 	@mkdir -p ~/.claude/skills
 	@mkdir -p ~/.agents
+	@mkdir -p ~/.agent-browser
 	@mkdir -p ~/.vim

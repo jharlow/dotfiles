@@ -593,6 +593,15 @@
       "skillFolderHash": "2bafd62db079eae1a4b6c34d0af4f9c3490266a2",
       "installedAt": "2026-11-14T03:36:20.609Z",
       "updatedAt": "2026-11-14T03:36:20.609Z"
+    },
+    "ui-sdk": {
+      "source": "vercel-labs/ui",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/ui.git",
+      "skillPath": "packages/core/skills/ui-sdk/SKILL.md",
+      "skillFolderHash": "6d7aa2516e5bc516ebc0edbfd8724ac9ff207993",
+      "installedAt": "2026-11-14T03:52:02.413Z",
+      "updatedAt": "2026-11-14T03:52:02.413Z"
     }
   },
   "lastSelectedAgents": [

@@ -163,6 +163,8 @@ Coding agent configuration is split across Stow packages:
 
 **Skills** are version-controlled directly, so they're present on a fresh machine after `make` - no re-install needed. `make` links every shared skill into `~/.claude/skills` without replacing the agent's own built-in skills. New skills installed into `~/.agents/skills` land in the repo automatically (it's a symlink), so just commit them and rerun `make link_agent_skills`.
 
+**agent-browser** user config lives in `agent-browser/config.json` and is linked to `~/.agent-browser/config.json`. It points agent-browser at [Helium](https://helium.computer) instead of its bundled Chrome.
+
 **Custom subagents** are Markdown files in `claude/agents/`; drop a `<name>.md` in and it appears at `~/.claude/agents/<name>.md`.
 
 **MCP servers** shared by coding agents are declared in `agents/mcp/servers.json`. Apply them with:
