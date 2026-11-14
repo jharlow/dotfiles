@@ -72,6 +72,7 @@ cask 'rectangle'
 cask 'screen-studio'
 cask 'voiceink'
 cask 'anomalyco/tap/hex', trusted: true
+cask 'agent-browser'
 
 ## Communication
 cask 'whatsapp'

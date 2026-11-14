@@ -519,6 +519,80 @@
       "skillFolderHash": "904db2759aaf1bd0e30eadedcd00efbd6367cc9f",
       "installedAt": "2026-11-12T03:06:58.617Z",
       "updatedAt": "2026-11-12T03:06:58.617Z"
+    },
+    "better-auth-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/better-auth/skills.git",
+      "skillPath": "better-auth/best-practices/SKILL.md",
+      "skillFolderHash": "2ed2719690a27752d6a01014ff217d9e3d120e43",
+      "pluginName": "auth-skills",
+      "installedAt": "2026-11-13T03:40:24.937Z",
+      "updatedAt": "2026-11-13T03:40:24.937Z"
+    },
+    "create-auth": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/better-auth/skills.git",
+      "skillPath": "better-auth/create-auth/SKILL.md",
+      "skillFolderHash": "f067ac9bee972c6320d990fd044a6da37f04fdee",
+      "pluginName": "auth-skills",
+      "installedAt": "2026-11-13T03:40:24.939Z",
+      "updatedAt": "2026-11-13T03:40:24.939Z"
+    },
+    "better-auth-security-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/better-auth/skills.git",
+      "skillPath": "security/SKILL.md",
+      "skillFolderHash": "7cd035c1dd03aafc236ea43492d31ca3306b7ab6",
+      "installedAt": "2026-11-13T03:40:24.939Z",
+      "updatedAt": "2026-11-13T03:40:24.939Z"
+    },
+    "email-and-password-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/better-auth/skills.git",
+      "skillPath": "better-auth/emailAndPassword/SKILL.md",
+      "skillFolderHash": "cda40d2f5c4a8d3faff3017a5dfcb23f93497c29",
+      "installedAt": "2026-11-13T03:40:24.939Z",
+      "updatedAt": "2026-11-13T03:40:24.939Z"
+    },
+    "organization-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/better-auth/skills.git",
+      "skillPath": "better-auth/organization/SKILL.md",
+      "skillFolderHash": "4256d5266e6f51a4e4c718f5c2308a81eb4a0032",
+      "installedAt": "2026-11-13T03:40:24.940Z",
+      "updatedAt": "2026-11-13T03:40:24.940Z"
+    },
+    "two-factor-authentication-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/better-auth/skills.git",
+      "skillPath": "better-auth/twoFactor/SKILL.md",
+      "skillFolderHash": "9fefe55e06966780e9d60c170d90bf37dd734318",
+      "installedAt": "2026-11-13T03:40:24.940Z",
+      "updatedAt": "2026-11-13T03:40:24.940Z"
+    },
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "skillFolderHash": "d75a393c9a371295c6d6be46c34938e76ef21184",
+      "installedAt": "2026-11-14T03:22:52.284Z",
+      "updatedAt": "2026-11-14T03:22:52.284Z"
+    },
+    "modern-web-guidance": {
+      "source": "GoogleChrome/modern-web-guidance",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/GoogleChrome/modern-web-guidance.git",
+      "skillPath": "skills/modern-web-guidance/SKILL.md",
+      "skillFolderHash": "2bafd62db079eae1a4b6c34d0af4f9c3490266a2",
+      "installedAt": "2026-11-14T03:36:20.609Z",
+      "updatedAt": "2026-11-14T03:36:20.609Z"
     }
   },
   "lastSelectedAgents": [

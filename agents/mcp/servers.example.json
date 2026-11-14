@@ -1,6 +1,7 @@
 {
   "_comment": "MCP declarations support HTTP and stdio transports. Put active, non-secret declarations in servers.json.",
   "mcpServers": {
+    "browse": { "command": "/Users/johnharlow/.local/bin/browse", "args": ["mcp"] },
     "example-http-server": {
       "type": "http",
       "url": "http://localhost:4444/api/mcp"

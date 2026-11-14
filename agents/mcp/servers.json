@@ -1,6 +1,4 @@
 {
   "_comment": "Portable MCP declarations shared by coding agents. Run `make agent-mcp` to apply them to Pi, Claude Code, and opencode. An empty map clears every client.",
-  "mcpServers": {
-    "browse": { "command": "/Users/johnharlow/.local/bin/browse", "args": ["mcp"] }
-  }
+  "mcpServers": {}
 }
