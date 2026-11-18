@@ -73,6 +73,8 @@ cask 'screen-studio'
 cask 'voiceink'
 cask 'anomalyco/tap/hex', trusted: true
 cask 'agent-browser'
+cask 'btop'
+cask 'ffmpeg'
 
 ## Communication
 cask 'whatsapp'
