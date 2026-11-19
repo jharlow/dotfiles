@@ -81,6 +81,7 @@ cask 'whatsapp'
 cask 'zoom'
 cask 'slack'
 cask 'loom'
+cask 'linear'
 
 ## Browsers
 cask 'helium-browser'
