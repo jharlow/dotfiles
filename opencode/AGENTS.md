@@ -4,6 +4,15 @@ In general, use `agent-browser` by default for all coding tasks. Use the `browse
 
 For non-coding tasks, inverse the order. Use the `browser` MCP tools by default, and use `agent-browser` as a fallback.
 
+## Session links
+
+Keep the session's key artifacts tracked with `links_add` and `links_remove`. They appear in my sidebar and stay in your context as `<context key="links">`, even after compaction.
+
+- Track a link as soon as it becomes central to the work: the ticket you're working on, a PR you open or review, an issue you're fixing, a design or spec you're implementing, a deploy you're verifying. This includes links I paste and ones you create, such as a new PR.
+- Don't track pages you only consulted, like search results, docs or dependencies' repos.
+- Lead the title with the identifier when there is one, e.g. `ENG-123: Fix login redirect` or `web#482: Add dark mode`.
+- Re-add a link to update it when its title or status changes, and remove it when it no longer applies.
+
 ## Closing sessions
 
 When I ask you to close the session, close its tab with `session_close` (or a session you spawned, by passing its `sessionID`). If you don't have that tool, run this instead:
