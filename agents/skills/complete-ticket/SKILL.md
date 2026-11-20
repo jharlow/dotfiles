@@ -76,6 +76,21 @@ at the end of the comment:
 Only change the assignee and labels as phase 4 describes. Don't change
 the priority or description unless the user asks.
 
+## Tracking links
+
+If the harness has a `links_add` tool (OpenCode does), use it to keep
+the work's key links in the user's sidebar:
+
+- **Phase 1**: add the ticket (`kind: "ticket"`, title
+  `ENG-123: <ticket title>`), plus any parent ticket or linked design
+  the work depends on.
+- **Phase 3**: if you create sub-tickets, add each one.
+- **Phase 6**: add the PR as soon as it opens (`kind: "pr"`, title
+  `<repo>#<number>: <PR title>`). Re-add it if the title changes.
+- **Phase 9**: once it's merged, re-add the PR with `note: "merged"`.
+
+Skip this if the harness has no such tool.
+
 ## 1. Read the ticket
 
 Use the Linear MCP tools. They accept identifiers like `ENG-123`
@@ -720,8 +735,24 @@ git worktree prune
 rm -rf "/tmp/$TICKET-pr"          # local screenshots and PR drafts; the uploaded copies live on GitHub
 ```
 
-The original checkout was never switched, so it's still on whatever
-branch the user had. If that's the default branch and the tree is clean,
-run `git pull --ff-only` to pick up the merge. Otherwise leave it alone.
-Tell the user the worktree is removed and that you're back in
-`$ORIGINAL_REPO`.
+Then return to the main checkout of the repo, not a worktree, and pull
+the merge. `$ORIGINAL_REPO` may itself be a worktree if the user started
+there, so resolve the main checkout from the shared git directory:
+
+```bash
+MAIN_REPO=$(dirname "$(git -C "$ORIGINAL_REPO" rev-parse --path-format=absolute --git-common-dir)")
+cd "$MAIN_REPO"
+git branch --show-current   # must be $DEFAULT_BRANCH
+git status --porcelain      # must be empty
+git pull --ff-only
+```
+
+Only pull if the main checkout is on `$DEFAULT_BRANCH` and has no
+uncommitted changes, including untracked files. If either check fails,
+skip the pull and leave the checkout alone: don't stash, switch branches
+or commit. Tell the user why you skipped it. If `git pull --ff-only`
+fails because the branches have diverged, stop and tell the user; don't
+merge or rebase.
+
+Tell the user the worktree is removed, that you're back in `$MAIN_REPO`,
+and whether you pulled the merge.
