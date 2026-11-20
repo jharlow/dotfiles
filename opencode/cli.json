@@ -4,5 +4,15 @@
     "enabled": true,
     "sound": true
   },
-  "animations": true
+  "animations": true,
+  "tabs": {
+    "layout": "horizontal",
+    "mode": "auto"
+  },
+  "keybinds": {
+    "session.tab.previous": "ctrl+shift+tab,alt+up,<leader>ctrl+[",
+    "session.tab.next": "ctrl+tab,alt+down,<leader>ctrl+]",
+    "session.new": "<leader>ctrl+n",
+    "session.tab.close": "<leader>ctrl+w"
+  }
 }
