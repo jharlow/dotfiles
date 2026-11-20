@@ -25,7 +25,17 @@ export default Plugin.define({
       return false
     }
 
-    const registration = await ctx.rpc.register(Sessions, {})
+    let close: (sessionID: string) => Promise<void> = async () => {}
+
+    const registration = await ctx.rpc.register(Sessions, {
+      close: async (input) => {
+        const { sessionID } = input as { sessionID: string }
+        await close(sessionID)
+        return { sessionID }
+      },
+    })
+
+    close = (sessionID) => registration.events.emit("close", { sessionID } as never)
 
     await ctx.tool.transform((editor) => {
       editor.add({
@@ -54,7 +64,7 @@ export default Plugin.define({
           if (!(await within(sessionID, context.sessionID))) {
             throw new Error(`session_close: ${sessionID} is not this session or one it spawned`)
           }
-          await registration.events.emit("close", { sessionID } as never)
+          await close(sessionID)
           return { content: `Session ${sessionID} will close in the TUI once it is idle.` }
         },
       })

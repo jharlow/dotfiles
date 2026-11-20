@@ -18,10 +18,6 @@
     }
   },
   // END MCP servers
-  // Server plugins in the global config directory aren't discovered
-  // automatically (only a project's .opencode/plugins are), so list them here.
-  // The CLI loads their TUI parts from this list too.
-  "plugins": ["./plugins/sessions"],
   "formatter": true,
   "lsp": true,
   "permissions": [],
