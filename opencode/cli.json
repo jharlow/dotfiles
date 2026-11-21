@@ -10,8 +10,8 @@
     "mode": "auto"
   },
   "keybinds": {
-    "session.tab.previous": "ctrl+shift+tab,alt+up,<leader>ctrl+[",
-    "session.tab.next": "ctrl+tab,alt+down,<leader>ctrl+]",
+    "session.tab.previous": "ctrl+shift+tab,alt+up",
+    "session.tab.next": "ctrl+tab,alt+down",
     "session.new": "<leader>ctrl+n",
     "session.tab.close": "<leader>ctrl+w"
   }
