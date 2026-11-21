@@ -10,7 +10,7 @@ Keep the session's key artifacts tracked with `links_add` and `links_remove`. Th
 
 - Track a link as soon as it becomes central to the work: the ticket you're working on, a PR you open or review, an issue you're fixing, a design or spec you're implementing, a deploy you're verifying. This includes links I paste and ones you create, such as a new PR.
 - Don't track pages you only consulted, like search results, docs or dependencies' repos.
-- Lead the title with the identifier when there is one, e.g. `ENG-123: Fix login redirect` or `web#482: Add dark mode`.
+- Keep titles very short: the kind and identifier is usually enough, e.g. `PR #1234`, `Ticket ENG-123` or `Issue #482`. Add a word or two only when there's no identifier. Put any status or role in the note instead.
 - Re-add a link to update it when its title or status changes, and remove it when it no longer applies.
 
 ## Closing sessions

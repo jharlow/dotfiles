@@ -140,7 +140,7 @@ export default Plugin.define({
             kind: { type: "string", enum: KINDS, description: "What the artifact is." },
             title: {
               type: "string",
-              description: "Short label, led by the identifier when there is one, e.g. 'ENG-123: Fix login redirect' or 'web#482: Add dark mode'.",
+              description: "Very short label, usually just the kind and identifier, e.g. 'PR #1234', 'Ticket ENG-123' or 'Issue #482'. Use a word or two only when there is no identifier; put status or role in note.",
             },
             note: { type: "string", description: "Optional one-line status or role, e.g. 'draft' or 'blocks ENG-120'." },
           },
