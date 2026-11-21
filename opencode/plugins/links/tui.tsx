@@ -144,7 +144,7 @@ export default Plugin.define({
       const url = first ?? (await context.ui.dialog.prompt({ title: "Link URL", placeholder: "https://…" }))?.trim()
       if (!url) return
       const title =
-        rest.join(" ") || (await context.ui.dialog.prompt({ title: "Link title", placeholder: "Ticket ENG-123" }))?.trim()
+        rest.join(" ") || (await context.ui.dialog.prompt({ title: "Link title", placeholder: "ENG-123" }))?.trim()
       if (title === undefined) return
       const kind = await context.ui.dialog.select<Kind>({
         title: "Link kind",
