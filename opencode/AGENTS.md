@@ -10,8 +10,16 @@ Keep the session's key artifacts tracked with `links_add` and `links_remove`. Th
 
 - Track a link as soon as it becomes central to the work: the ticket you're working on, a PR you open or review, an issue you're fixing, a design or spec you're implementing, a deploy you're verifying. This includes links I paste and ones you create, such as a new PR.
 - Don't track pages you only consulted, like search results, docs or dependencies' repos.
-- Keep titles very short: the kind and identifier is usually enough, e.g. `PR #1234`, `Ticket ENG-123` or `Issue #482`. Add a word or two only when there's no identifier. Put any status or role in the note instead.
+- Keep titles very short, and don't repeat the kind since it's shown alongside. When the artifact has an identifier, the title is just that, e.g. `ENG-123` with kind `ticket` or `#1234` with kind `pr`. Otherwise use a short description, e.g. `Reference video` with kind `other`. Put any status or role in the note instead.
 - Re-add a link to update it when its title or status changes, and remove it when it no longer applies.
+
+## Opening sessions
+
+When I ask you to start work in a new session or tab (e.g. "start a new session to complete ZONE-14"), use `session_open`. Write the prompt as I would, and pass the skills it should load (e.g. `complete-ticket`) and any files it should see. Use `directory` to start it somewhere other than the current directory, such as a worktree. It opens in the background unless I ask to switch to it. If you don't have that tool, run this instead:
+
+```sh
+opencode api post "/api/rpc/sessions/open?location[directory]=$PWD" -d '{"input":{"prompt":"Complete ticket ZONE-14","skills":["complete-ticket"],"openerID":"'"$OPENCODE_SESSION_ID"'"}}'
+```
 
 ## Closing sessions
 
