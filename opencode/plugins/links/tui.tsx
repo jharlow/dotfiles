@@ -10,6 +10,10 @@ import { Plugin } from "@opencode/plugin/tui"
 import { createEffect, createMemo, For, Show } from "solid-js"
 import { guessKind, KINDS, Links, type Kind, type Link } from "./rpc"
 
+// The updated event of the Links RPC (rpc.ts), as the event stream names it:
+// prefixed with the RPC's id.
+const UPDATED_EVENT = "rpc.links.updated"
+
 const LABELS: Record<Kind, string> = {
   ticket: "ticket",
   pr: "PR",
@@ -108,7 +112,13 @@ export default Plugin.define({
         })
     }
 
-    const stop = context.client.rpc(Links).events.on("updated", (event) => {
+    // Read updates off the TUI's shared event stream rather than
+    // context.client.rpc(Links).events: that subscription is live-only and
+    // isn't re-established when the background service restarts, so the
+    // sidebar would stop updating. The shared stream reconnects on its own.
+    const stop = context.data.listen(({ details }) => {
+      const event = details as { type: string; data?: unknown }
+      if (event.type !== UPDATED_EVENT) return
       const { sessionID, links } = event.data as { sessionID: string; links: Link[] }
       loaded.add(sessionID)
       set(sessionID, links)

@@ -6,7 +6,10 @@
 // session at a time, so "closing" it means going back home.
 
 import { Plugin } from "@opencode/plugin/tui"
-import { Sessions } from "./rpc"
+
+// The close event of the Sessions RPC (rpc.ts), as the event stream names it:
+// prefixed with the RPC's id.
+const CLOSE_EVENT = "rpc.sessions.close"
 
 // Tab state changes are client-side and emit no server event, so a cheap poll
 // backs up the server events that usually trigger the check.
@@ -39,17 +42,21 @@ export default Plugin.define({
       }
     }
 
-    const stopClose = context.client.rpc(Sessions).events.on("close", (event) => {
-      pending.add((event.data as { sessionID: string }).sessionID)
+    // Read close requests off the TUI's shared event stream rather than
+    // context.client.rpc(Sessions).events: that subscription is live-only and
+    // isn't re-established when the background service restarts, so a TUI
+    // that outlived a restart would silently stop closing tabs. The shared
+    // stream reconnects on its own.
+    const stopEvents = context.data.listen(({ details }) => {
+      const event = details as { type: string; data?: unknown }
+      if (event.type === CLOSE_EVENT) pending.add((event.data as { sessionID: string }).sessionID)
       settle()
     })
-    const stopEvents = context.data.listen(() => settle())
     const timer = setInterval(() => pending.size > 0 && settle(), POLL_MS)
 
     return () => {
       clearInterval(timer)
       stopEvents()
-      stopClose()
     }
   },
 })
