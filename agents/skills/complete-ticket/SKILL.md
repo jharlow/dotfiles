@@ -3,9 +3,10 @@ name: complete-ticket
 description: >
   Take a Linear ticket from reference to merged PR. Reads the ticket,
   creates a git worktree and branch named after the ticket, plans the
-  work in the plan agent and resolves ambiguities with the user (very
-  large tickets are split into sub-tickets that each go through the same
-  flow), does
+  work in the plan agent, then either resolves ambiguities with the user
+  or, when the remaining ones are minor, proceeds and reports its
+  assumptions at the end (very large tickets are split into sub-tickets
+  that each go through the same flow), does
   the work, keeps the ticket's status, assignee, labels and a work-log comment thread
   updated throughout, opens a PR with iOS and web screenshots and demos and a detailed description,
   self-reviews the PR, responds to its own review comments, runs the
@@ -21,9 +22,11 @@ metadata:
 # Complete Ticket
 
 Drive one Linear ticket from reference to merged PR. Work through the
-phases in order and don't skip any. You stop for the user at two
-points: plan approval in phase 3, and merge approval in phase 9. If the
-user asks for changes at phase 9, loop back to phase 3. If phase 3
+phases in order and don't skip any. You stop for the user at most at
+two points: plan approval in phase 3, which you skip when the plan has
+only minor ambiguities (see "Decide whether the plan needs approval"),
+and merge approval in phase 9, which you never skip. If the user asks
+for changes at phase 9, loop back to phase 3. If phase 3
 finds that the ticket is very large, it can be split into sub-tickets
 that each run through this flow. See "Decide whether to break the
 ticket down".
@@ -169,8 +172,9 @@ commands.
 
 ## 3. Plan
 
-Don't write any code until this phase is finished and the user has
-approved the plan.
+Don't write any code until this phase is finished: the full plan is
+written, and either the user has approved it or you've decided it
+doesn't need their approval.
 
 ### Switch to the plan agent
 
@@ -185,7 +189,7 @@ Switch to the harness's read-only planning mode before you start:
 
 - **Claude Code**: call `EnterPlanMode`.
 - **Any other harness**: if it has no plan mode, stay read-only until
-  the plan is approved. Don't edit files or run commands that change
+  this phase is finished. Don't edit files or run commands that change
   anything.
 
 ### Investigate
@@ -278,9 +282,10 @@ Once the user approves:
 
 The parent ticket never gets its own PR.
 
-### Present the plan
+### Write the plan
 
-Show the user both versions, condensed first:
+Always write out both versions of the plan in full, condensed first,
+whether or not you'll ask the user to approve it:
 
 1. **Condensed plan**: three to five bullet points covering what will
    change and how.
@@ -292,32 +297,75 @@ Show the user both versions, condensed first:
    - which UI states you'll screenshot on each platform, and which
      flows you'll record as demos, if any
    - the assumptions you made
+   - every open ambiguity, with the option you'd pick and why
    - risks and anything out of scope
 
-Then use the harness's question tool to put every open ambiguity to the
+### Decide whether the plan needs approval
+
+Once the plan is written, stop and think it through before going on:
+**are the open ambiguities worth a round trip to the user?** Asking
+costs the user a cycle. Proceeding on a wrong guess costs a rework
+round in phase 9. Weigh the two.
+
+Proceed without asking only when all of these are true:
+
+- The change is small and well contained, such as a bug fix, a copy
+  change or a tweak to one screen or function.
+- Every open ambiguity has an option you'd clearly recommend, and
+  picking the other one would mean a small, local change later.
+- Nothing in the plan changes a public API, a data model or migration,
+  security or permissions, or anything else that's costly to undo once
+  merged.
+- The scope matches what the ticket implies.
+
+Ask the user when any of these are true:
+
+- An ambiguity is a real product or UX decision with no clear default,
+  or the options lead to noticeably different implementations.
+- A wrong guess would mean redoing a large part of the work.
+- The plan touches anything costly to undo, as listed above.
+- You're splitting the ticket into sub-tickets. That always needs
+  approval.
+- The user asked to review the plan.
+
+When in doubt, ask.
+
+#### If the ambiguities are minor: proceed
+
+Don't call the question tool. Tell the user in a few lines that you're
+going ahead without asking, list the ambiguities and the choice you
+made for each, then switch back to the build agent and go on to
+phase 4. Keep the list of choices: you report them again in phase 9, so
+the user can ask for tweaks in the same round as the merge approval.
+
+In Claude Code, `ExitPlanMode` always asks the user, so present the
+plan through it without asking any `AskUserQuestion` questions first.
+
+#### If the ambiguities are significant: ask
+
+Use the harness's question tool to put every open ambiguity to the
 user. That's `question` in OpenCode and `AskUserQuestion` in Claude
 Code. Ask them all in one call: one question per ambiguity, with
 concrete options, your recommendation first and marked
 "(Recommended)", and a short description of each option's trade-off.
 Always end with a question asking the user to approve the plan or
-request changes. Ask it even when there are no ambiguities, so you
-never start building on a plan the user hasn't seen. In Claude Code,
-`ExitPlanMode` handles plan approval, so ask your ambiguity questions
-with `AskUserQuestion` first, then present the final plan through
-`ExitPlanMode`.
+request changes. In Claude Code, `ExitPlanMode` handles plan approval,
+so ask your ambiguity questions with `AskUserQuestion` first, then
+present the final plan through `ExitPlanMode`.
 
 If the answers change the plan significantly, show the updated plan and
 ask again. Repeat until the user approves.
 
 **Linear**: once you've switched back to the build agent (below), reply
-in the work log with the approved plan: the condensed
-bullets, the decisions the user made on each ambiguity, and the full
-plan in a collapsible section. On later loops, title it "Rework plan,
-round N" and say which feedback it addresses.
+in the work log with the plan: the condensed bullets, the decision on
+each ambiguity and who made it (the user, or you without asking), and
+the full plan in a collapsible section. On later loops, title it
+"Rework plan, round N" and say which feedback it addresses.
 
 ### Switch back to the build agent
 
-Once the user approves the plan:
+Once the user approves the plan, or you've decided it doesn't need
+approval:
 
 - **OpenCode**: switch back to `build`.
 
@@ -341,7 +389,7 @@ one `save_issue` call:
   someone else is already assigned, ask the user before you reassign
   it. Leave it alone if it's already assigned to the user.
 - **Labels**: use `addLabels` to add the team's labels that describe
-  the approved plan, such as its type of work (bug, feature,
+  the plan, such as its type of work (bug, feature,
   improvement) or the areas it touches. If an existing label clearly
   contradicts the plan, for example "Bug" on what turned out to be a
   new feature, remove it with `removeLabels`. Keep every other label.
@@ -352,9 +400,11 @@ On rework loops, check the labels again in case the scope changed.
 
 Then do the work:
 
-- Follow the approved plan. If you find something it didn't anticipate
-  that changes the approach or the scope, stop and check with the user
-  rather than improvising.
+- Follow the plan. If you find something it didn't anticipate that
+  changes the approach or the scope, stop and check with the user
+  rather than improvising. This applies even when you went ahead
+  without asking for approval: a surprise that big means the
+  ambiguities weren't minor after all.
 - Match the existing conventions you found while planning.
 - Meet every acceptance criterion from your brief. Don't expand scope.
   Note follow-up ideas for the PR description instead of building them.
@@ -658,7 +708,12 @@ Stop here and notify the user. Include:
   declined and why
 - the test suite and CI results, including any failures you couldn't
   resolve
-- anything that needs their judgement
+- if you went ahead in phase 3 without asking, a **Decisions I made**
+  section listing each ambiguity, the choice you made, the alternative,
+  and what switching would involve, so the user can ask for tweaks
+  instead of approving
+- any other uncertainties: anything you're unsure about and anything
+  that needs their judgement
 
 Then ask for explicit approval to merge. **Never merge without it.**
 Approval for one PR doesn't carry over to another.
@@ -692,8 +747,8 @@ or native code, since those don't reload.
 
 1. **Phase 3, plan**: switch to the plan agent. Read the code the
    feedback touches, and present a condensed plan and a full plan for
-   the changes. Ask about any ambiguities in the feedback, get approval,
-   then switch back to the build agent.
+   the changes. Decide whether the plan needs approval as before. Small,
+   clear feedback usually doesn't. Then switch back to the build agent.
 2. **Phase 4, work**: implement the changes in the same worktree and
    branch.
 3. **Phase 5, screenshots**: retake any screenshots and demos the
