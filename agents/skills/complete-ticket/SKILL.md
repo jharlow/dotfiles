@@ -82,14 +82,16 @@ the priority or description unless the user asks.
 ## Tracking links
 
 If the harness has a `links_add` tool (OpenCode does), use it to keep
-the work's key links in the user's sidebar:
+the work's key links in the user's sidebar. The kind is shown alongside
+the title, so the title is just the bare identifier with no prefix or
+ticket/PR title (`ENG-123`, not `ENG-123: <ticket title>`; `#1234`, not
+`<repo>#1234: <PR title>`). Put any status in `note`.
 
-- **Phase 1**: add the ticket (`kind: "ticket"`, title
-  `ENG-123: <ticket title>`), plus any parent ticket or linked design
-  the work depends on.
+- **Phase 1**: add the ticket (`kind: "ticket"`, title `ENG-123`),
+  plus any parent ticket or linked design the work depends on.
 - **Phase 3**: if you create sub-tickets, add each one.
 - **Phase 6**: add the PR as soon as it opens (`kind: "pr"`, title
-  `<repo>#<number>: <PR title>`). Re-add it if the title changes.
+  `#<number>`).
 - **Phase 9**: once it's merged, re-add the PR with `note: "merged"`.
 
 Skip this if the harness has no such tool.
