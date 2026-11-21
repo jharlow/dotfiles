@@ -10,7 +10,7 @@ Keep the session's key artifacts tracked with `links_add` and `links_remove`. Th
 
 - Track a link as soon as it becomes central to the work: the ticket you're working on, a PR you open or review, an issue you're fixing, a design or spec you're implementing, a deploy you're verifying. This includes links I paste and ones you create, such as a new PR.
 - Don't track pages you only consulted, like search results, docs or dependencies' repos.
-- Keep titles very short, and don't repeat the kind since it's shown alongside. When the artifact has an identifier, the title is just that, e.g. `ENG-123` with kind `ticket` or `#1234` with kind `pr`. Otherwise use a short description, e.g. `Reference video` with kind `other`. Put any status or role in the note instead.
+- Keep titles very short, and don't repeat the kind since it's shown alongside. When the artifact matches a kind and has an identifier, like a ticket number or a PR or issue number, the title is just the bare identifier with no prefix, e.g. `ENG-123` (not `Ticket ENG-123`) with kind `ticket`, or `#1234` (not `PR #1234`) with kind `pr`. Otherwise use a short description, e.g. `Reference video` with kind `other`. Put any status or role in the note instead.
 - Re-add a link to update it when its title or status changes, and remove it when it no longer applies.
 
 ## Opening sessions

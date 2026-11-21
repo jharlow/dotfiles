@@ -140,7 +140,7 @@ export default Plugin.define({
             kind: { type: "string", enum: KINDS, description: "What the artifact is." },
             title: {
               type: "string",
-              description: "Very short label. The kind is shown alongside it, so don't repeat it: when the artifact has an identifier, use just that, e.g. 'ENG-123' for a ticket or '#1234' for a PR or issue. Otherwise use a short description, e.g. 'Reference video' for other. Put status or role in note.",
+              description: "Very short label. The kind is shown alongside it, so don't repeat it: when the artifact matches a kind and has an identifier, like a ticket number or a PR or issue number, use just the bare identifier with no prefix, e.g. 'ENG-123' (not 'Ticket ENG-123') for a ticket or '#1234' (not 'PR #1234') for a PR or issue. Otherwise use a short description, e.g. 'Reference video' for other. Put status or role in note.",
             },
             note: { type: "string", description: "Optional one-line status or role, e.g. 'draft' or 'blocks ENG-120'." },
           },
