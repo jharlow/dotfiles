@@ -33,6 +33,16 @@ ticket down".
 
 If the user gave no ticket reference, ask for one before doing anything.
 
+## Set the session title
+
+Before anything else, title the session after the ticket, so the user
+can tell sessions apart at a glance. Use the ticket identifier and,
+once you've fetched the ticket with `get_issue`, a plain three- or
+four-word summary of its subject, such as `ENG-123 Fix login redirect`.
+If you don't have the subject yet, set the identifier alone, then add
+the summary after `get_issue`. Use the harness's own way of renaming
+the session, and skip this if it has none.
+
 ## Keeping the ticket updated
 
 Keep the Linear ticket current as you go, so anyone looking at it can
