@@ -37,6 +37,7 @@ brew 'asciinema'
 brew 'awscli'
 brew 'mongosh'
 brew 'hyperfine'
+cask 'vercel'
 
 ## Node.js
 brew 'node'
