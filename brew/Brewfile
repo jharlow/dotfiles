@@ -38,6 +38,7 @@ brew 'awscli'
 brew 'mongosh'
 brew 'hyperfine'
 cask 'vercel'
+brew 'posthog/tap/posthog-cli', trusted: true
 
 ## Node.js
 brew 'node'
