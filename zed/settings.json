@@ -44,5 +44,11 @@
   "terminal": {
     "dock": "right",
     "font_size": 14
+  },
+  "context_servers": {
+    "posthog": {
+      "enabled": true,
+      "url": "https://mcp.posthog.com/mcp"
+    }
   }
 }
